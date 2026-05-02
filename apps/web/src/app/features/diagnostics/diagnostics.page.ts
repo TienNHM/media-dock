@@ -16,17 +16,26 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
       <p class="muted">Health checks, downloads root, last SignalR progress.</p>
 
       <div class="box mono">
-        <div><strong>GET /health/ready</strong></div>
+        <div class="box-hdr">
+          <i class="pi pi-heart box-hdr__ico" aria-hidden="true"></i>
+          <strong>GET /health/ready</strong>
+        </div>
         <pre>{{ healthBody() }}</pre>
       </div>
 
       <div class="box mono">
-        <div><strong>GET /api/runtime/downloads</strong></div>
+        <div class="box-hdr">
+          <i class="pi pi-folder-open box-hdr__ico" aria-hidden="true"></i>
+          <strong>GET /api/runtime/downloads</strong>
+        </div>
         <pre>{{ downloadsBody() }}</pre>
       </div>
 
       <div class="box mono">
-        <div><strong>Last job progress (SignalR)</strong></div>
+        <div class="box-hdr">
+          <i class="pi pi-wifi box-hdr__ico" aria-hidden="true"></i>
+          <strong>Last job progress (SignalR)</strong>
+        </div>
         <pre>{{ pretty(realtime.lastProgress()) }}</pre>
       </div>
     </div>
@@ -47,6 +56,14 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
         background: rgba(255, 255, 255, 0.03);
         overflow: auto;
         margin-bottom: 12px;
+      }
+      .box-hdr {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .box-hdr__ico {
+        opacity: 0.8;
       }
       pre {
         margin: 8px 0 0;

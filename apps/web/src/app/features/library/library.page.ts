@@ -3,16 +3,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import type { LibraryItemDto } from '../../core/models/job.models';
+import { jobPlatformIconClasses } from '../../core/ui/job-visuals';
 import { DesktopBridgeService } from '../../core/services/desktop-bridge.service';
 import { LibraryApiService } from '../../core/services/library-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-library-page',
-  imports: [CommonModule, RouterLink, ButtonModule, TagModule, TooltipModule],
+  imports: [CommonModule, RouterLink, ButtonModule, TooltipModule],
   template: `
     <div class="page library">
       <header class="library__masthead">
@@ -26,8 +26,9 @@ import { LibraryApiService } from '../../core/services/library-api.service';
           pButton
           type="button"
           icon="pi pi-refresh"
-          label="Refresh"
-          class="p-button-outlined"
+          class="p-button-outlined p-button-rounded"
+          [pTooltip]="'Refresh library'"
+          [attr.aria-label]="'Refresh library'"
           (click)="load()"
           [loading]="loading()"
         ></button>
@@ -90,7 +91,12 @@ import { LibraryApiService } from '../../core/services/library-api.service';
               </h2>
 
               <div class="lib-card__meta">
-                <p-tag [value]="item.sourcePlatform" severity="secondary"></p-tag>
+                <i
+                  class="lib-card__plat pi md-job-ico md-job-ico--neutral"
+                  [ngClass]="jobPlatformIconClasses(item.sourcePlatform)"
+                  [pTooltip]="item.sourcePlatform"
+                  [attr.aria-label]="'Platform: ' + item.sourcePlatform"
+                ></i>
                 <span class="lib-card__date">{{ item.completedAt | date: 'medium' }}</span>
                 @if (vid && vid.sizeBytes != null) {
                   <span class="lib-card__size mono">{{ formatBytes(vid.sizeBytes!) }}</span>
@@ -101,36 +107,40 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                 <button
                   pButton
                   type="button"
-                  class="p-button-text p-button-sm"
+                  class="p-button-text p-button-sm p-button-rounded"
                   [routerLink]="['/jobs', item.jobId]"
-                  label="Job"
                   icon="pi pi-link"
+                  [pTooltip]="'Open job'"
+                  [attr.aria-label]="'Open job'"
                 ></button>
                 <a
                   pButton
                   type="button"
-                  class="p-button-text p-button-sm"
+                  class="p-button-text p-button-sm p-button-rounded"
                   [href]="item.url"
                   target="_blank"
                   rel="noopener noreferrer"
-                  label="Source"
                   icon="pi pi-external-link"
+                  [pTooltip]="'Open source URL'"
+                  [attr.aria-label]="'Open source URL'"
                 ></a>
                 @if (vid && desktop.isDesktopShell()) {
                   <button
                     pButton
                     type="button"
-                    class="p-button-text p-button-sm"
+                    class="p-button-text p-button-sm p-button-rounded"
                     icon="pi pi-folder-open"
-                    label="Folder"
+                    [pTooltip]="'Show in folder'"
+                    [attr.aria-label]="'Show in folder'"
                     (click)="openFolder(vid.path)"
                   ></button>
                   <button
                     pButton
                     type="button"
-                    class="p-button-text p-button-sm"
+                    class="p-button-text p-button-sm p-button-rounded"
                     icon="pi pi-play"
-                    label="Preview"
+                    [pTooltip]="'Preview locally'"
+                    [attr.aria-label]="'Preview video locally'"
                     (click)="previewLocal(vid.path)"
                   ></button>
                 }
@@ -138,21 +148,22 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                   <button
                     pButton
                     type="button"
-                    class="p-button-text p-button-sm"
+                    class="p-button-text p-button-sm p-button-rounded"
                     icon="pi pi-copy"
-                    label="Copy path"
                     [pTooltip]="copyHint(item.jobId)"
                     tooltipPosition="left"
+                    [attr.aria-label]="'Copy file path'"
                     (click)="copyPath(item.jobId, primary.path)"
                   ></button>
                 }
                 <button
                   pButton
                   type="button"
-                  class="p-button-text p-button-sm p-button-danger ml-auto"
+                  class="p-button-text p-button-sm p-button-danger ml-auto p-button-rounded"
                   icon="pi pi-trash"
-                  label="Remove"
                   severity="danger"
+                  [pTooltip]="'Remove from library'"
+                  [attr.aria-label]="'Remove from library'"
                   [loading]="removingJobId() === item.jobId"
                   [disabled]="removingJobId() !== null"
                   (click)="confirmRemove(item)"
@@ -320,6 +331,9 @@ import { LibraryApiService } from '../../core/services/library-api.service';
         gap: 8px;
         row-gap: 6px;
       }
+      .lib-card__plat {
+        line-height: 1;
+      }
       .lib-card__date,
       .lib-card__size {
         font-size: 0.82rem;
@@ -381,6 +395,7 @@ import { LibraryApiService } from '../../core/services/library-api.service';
   ],
 })
 export class LibraryPage implements OnInit {
+  readonly jobPlatformIconClasses = jobPlatformIconClasses;
   readonly api = inject(LibraryApiService);
   readonly desktop = inject(DesktopBridgeService);
 

@@ -4,20 +4,37 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
 import type { CookieProfileDto } from '../../core/models/job.models';
 import { CookiesApiService } from '../../core/services/cookies-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-cookies-page',
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule],
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, InputTextModule, TooltipModule],
   template: `
     <div class="page">
       <div class="page__header">
         <h1>Cookie files</h1>
         <div class="actions">
-          <button pButton type="button" label="Add row" class="p-button-text" (click)="addRow()"></button>
-          <button pButton type="button" label="Save" (click)="save()" [disabled]="busy()"></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            class="p-button-text"
+            label="Add row"
+            [pTooltip]="'Add cookie profile row'"
+            (click)="addRow()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-file-check"
+            label="Save"
+            [pTooltip]="'Save all rows'"
+            (click)="save()"
+            [disabled]="busy()"
+          ></button>
         </div>
       </div>
       <p class="muted">Đường dẫn tuyệt đối tới file cookies (Netscape) dùng trong preset JSON: <span class="mono">cookiesPath</span>.</p>
@@ -31,15 +48,26 @@ import { CookiesApiService } from '../../core/services/cookies-api.service';
           <tr>
             <th>Name</th>
             <th>File path</th>
-            <th></th>
+            <th scope="col" class="col-actions">
+              <span class="sr-only">Remove</span>
+              <i class="pi pi-trash" aria-hidden="true" pTooltip="Remove row" tooltipPosition="bottom"></i>
+            </th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-row let-i="rowIndex">
           <tr>
             <td><input pInputText [(ngModel)]="row.name" class="w-full" /></td>
             <td><input pInputText [(ngModel)]="row.filePath" class="w-full mono" /></td>
-            <td>
-              <button pButton type="button" class="p-button-text p-button-danger" label="Remove" (click)="removeAt(i)"></button>
+            <td class="col-actions">
+              <button
+                pButton
+                type="button"
+                class="p-button-text p-button-rounded p-button-sm p-button-danger"
+                icon="pi pi-trash"
+                [pTooltip]="'Remove row'"
+                [attr.aria-label]="'Remove row'"
+                (click)="removeAt(i)"
+              ></button>
             </td>
           </tr>
         </ng-template>
@@ -71,6 +99,20 @@ import { CookiesApiService } from '../../core/services/cookies-api.service';
       .mono {
         font-family: ui-monospace, monospace;
         font-size: 0.85rem;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .col-actions {
+        width: 3.5rem;
+        text-align: center;
+        vertical-align: middle;
       }
     `,
   ],

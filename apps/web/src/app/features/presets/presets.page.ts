@@ -6,18 +6,26 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { Textarea } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
 import type { PresetDto } from '../../core/models/job.models';
 import { PresetsApiService } from '../../core/services/presets-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-presets-page',
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, Textarea],
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, Textarea, TooltipModule],
   template: `
     <div class="page">
       <div class="page__header">
         <h1>Presets</h1>
-        <button pButton type="button" label="New preset" (click)="openCreate()"></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="New preset"
+          [pTooltip]="'Create preset'"
+          (click)="openCreate()"
+        ></button>
       </div>
       <p class="muted">JSON spec: format (yt-dlp -f), subs, thumb, optional cookiesPath (absolute file).</p>
 
@@ -31,7 +39,10 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
             <th>Name</th>
             <th>Default</th>
             <th>Updated</th>
-            <th></th>
+            <th scope="col" class="col-actions">
+              <span class="sr-only">Actions</span>
+              <i class="pi pi-bolt" aria-hidden="true" pTooltip="Actions" tooltipPosition="bottom"></i>
+            </th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-p>
@@ -40,8 +51,24 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
             <td>{{ p.isDefault ? 'Yes' : '' }}</td>
             <td class="mono">{{ p.updatedAt | date: 'short' }}</td>
             <td class="actions">
-              <button pButton type="button" class="p-button-text" label="Edit" (click)="openEdit(p)"></button>
-              <button pButton type="button" class="p-button-text p-button-danger" label="Delete" (click)="remove(p)"></button>
+              <button
+                pButton
+                type="button"
+                class="p-button-text p-button-rounded p-button-sm"
+                icon="pi pi-pencil"
+                [pTooltip]="'Edit'"
+                [attr.aria-label]="'Edit preset ' + p.name"
+                (click)="openEdit(p)"
+              ></button>
+              <button
+                pButton
+                type="button"
+                class="p-button-text p-button-rounded p-button-sm p-button-danger"
+                icon="pi pi-trash"
+                [pTooltip]="'Delete'"
+                [attr.aria-label]="'Delete preset ' + p.name"
+                (click)="remove(p)"
+              ></button>
             </td>
           </tr>
         </ng-template>
@@ -65,8 +92,24 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
         <label class="row-check"><input type="checkbox" [(ngModel)]="formDefault" /> Default preset</label>
       </div>
       <ng-template pTemplate="footer">
-        <button pButton type="button" label="Cancel" class="p-button-text" (click)="dialogOpen.set(false)"></button>
-        <button pButton type="button" label="Save" (click)="save()" [disabled]="busy() || !formName.trim()"></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          class="p-button-text p-button-rounded"
+          [attr.aria-label]="'Cancel'"
+          [pTooltip]="'Cancel'"
+          (click)="dialogOpen.set(false)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-check"
+          label="Save"
+          [attr.aria-label]="'Save preset'"
+          (click)="save()"
+          [disabled]="busy() || !formName.trim()"
+        ></button>
       </ng-template>
     </p-dialog>
   `,
@@ -87,7 +130,25 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
       .err {
         color: #f87171;
       }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .col-actions {
+        width: 4.5rem;
+        text-align: center;
+        vertical-align: middle;
+      }
       .actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
         white-space: nowrap;
       }
       .form {

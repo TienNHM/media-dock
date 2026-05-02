@@ -18,3 +18,45 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
     "Segoe UI Emoji";
 }
+
+/**
+ * Routed views sit as siblings of `<router-outlet>`. Flex column lets the outlet stay zero-sized
+ * while the shell (e.g. `app-shell`) grows to fill — required for `%` / grid `fr` height math.
+ */
+app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+}
+
+/** Shared job/status icons (tables, tags). */
+.md-job-ico {
+  font-size: 1.12rem;
+  line-height: 1;
+}
+
+.md-job-ico--success {
+  color: #4ade80;
+}
+.md-job-ico--danger {
+  color: #f87171;
+}
+.md-job-ico--warn {
+  color: #fbbf24;
+}
+.md-job-ico--info {
+  color: #7dd3fc;
+}
+.md-job-ico--muted {
+  color: #94a3b8;
+}
+.md-job-ico--neutral {
+  color: #a8b3c4;
+}
+
+.md-sidebar-ico {
+  margin-right: 10px;
+  opacity: 0.85;
+  font-size: 0.95rem;
+}

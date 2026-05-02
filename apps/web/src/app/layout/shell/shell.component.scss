@@ -1,7 +1,17 @@
+/** Grows inside flex `app-root` so library scroll stays inside `.shell__content`, not the window. */
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .shell {
   display: grid;
   grid-template-columns: 280px 1fr;
-  height: 100vh;
+  flex: 1;
+  min-height: 0;
 }
 
 .shell__sidebar {
@@ -11,6 +21,8 @@
   flex-direction: column;
   padding: 16px;
   gap: 16px;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .shell__brand {
@@ -51,6 +63,8 @@
 }
 
 .shell__navItem {
+  display: flex;
+  align-items: center;
   text-decoration: none;
   color: var(--md-text);
   padding: 10px 10px;
@@ -80,8 +94,10 @@
 
 .shell__main {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .shell__topbar {
@@ -214,7 +230,9 @@
 
 .shell__content {
   padding: 18px;
-  overflow: auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .shell__statusbar {
@@ -252,6 +270,12 @@
   padding: 0;
   max-height: min(360px, 50vh);
   overflow: auto;
+}
+
+.palette__ico {
+  margin-right: 10px;
+  opacity: 0.85;
+  font-size: 0.95rem;
 }
 
 .palette__link {

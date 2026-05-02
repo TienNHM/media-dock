@@ -6,6 +6,7 @@ import { interval } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
+import { appVersionLabel } from '../../core/app-version';
 import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
 import type { NotificationDto } from '../../core/services/notifications-api.service';
 import { NotificationsApiService } from '../../core/services/notifications-api.service';
@@ -26,6 +27,7 @@ import { NotificationsApiService } from '../../core/services/notifications-api.s
   styleUrl: './shell.component.scss',
 })
 export class ShellComponent implements OnInit {
+  readonly appVersionLabel = appVersionLabel;
   readonly realtime = inject(JobsRealtimeService);
   private readonly router = inject(Router);
   private readonly notificationsApi = inject(NotificationsApiService);
@@ -39,16 +41,16 @@ export class ShellComponent implements OnInit {
   readonly notifLoading = signal(false);
 
   readonly nav = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Acquire', path: '/acquire' },
-    { label: 'Queue', path: '/queue' },
-    { label: 'History', path: '/history' },
-    { label: 'Library', path: '/library' },
-    { label: 'Presets', path: '/presets' },
-    { label: 'Schedules', path: '/schedules' },
-    { label: 'Cookies', path: '/cookies' },
-    { label: 'Diagnostics', path: '/diagnostics' },
-    { label: 'Settings', path: '/settings' },
+    { label: 'Dashboard', path: '/dashboard', icon: 'pi-chart-bar' },
+    { label: 'Acquire', path: '/acquire', icon: 'pi-download' },
+    { label: 'Queue', path: '/queue', icon: 'pi-list' },
+    { label: 'History', path: '/history', icon: 'pi-history' },
+    { label: 'Library', path: '/library', icon: 'pi-images' },
+    { label: 'Presets', path: '/presets', icon: 'pi-bookmark' },
+    { label: 'Schedules', path: '/schedules', icon: 'pi-calendar' },
+    { label: 'Cookies', path: '/cookies', icon: 'pi-key' },
+    { label: 'Diagnostics', path: '/diagnostics', icon: 'pi-wrench' },
+    { label: 'Settings', path: '/settings', icon: 'pi-cog' },
   ] as const;
 
   readonly filteredNav = computed(() => {

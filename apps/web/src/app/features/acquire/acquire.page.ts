@@ -3,6 +3,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 import type { PresetDto } from '../../core/models/job.models';
 import { JobsApiService } from '../../core/services/jobs-api.service';
 import { PresetsApiService } from '../../core/services/presets-api.service';
@@ -11,7 +12,7 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
 @Component({
   standalone: true,
   selector: 'app-acquire-page',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TooltipModule],
   template: `
     <div class="page">
       <div class="page__header">
@@ -25,7 +26,10 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
           class="mode"
           [class.mode--on]="mode() === 'single'"
           (click)="mode.set('single')"
+          [pTooltip]="'Một URL'"
+          aria-label="Một URL"
         >
+          <i class="pi pi-link mode__ico" aria-hidden="true"></i>
           Một URL
         </button>
         <button
@@ -33,7 +37,10 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
           class="mode"
           [class.mode--on]="mode() === 'batch'"
           (click)="mode.set('batch')"
+          [pTooltip]="'Hàng loạt'"
+          aria-label="Hàng loạt"
         >
+          <i class="pi pi-list mode__ico" aria-hidden="true"></i>
           Hàng loạt
         </button>
       </div>
@@ -62,7 +69,15 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
         </label>
         @if (mode() === 'single') {
           <input pInputText type="url" placeholder="https://…" [(ngModel)]="url" class="grow" />
-          <button pButton type="button" label="Enqueue" (click)="submitSingle()" [disabled]="busy() || !url"></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-send"
+            label="Enqueue"
+            [pTooltip]="'Đưa job vào hàng chờ'"
+            (click)="submitSingle()"
+            [disabled]="busy() || !url"
+          ></button>
         } @else {
           <div class="batch">
             <textarea
@@ -75,7 +90,9 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
             <button
               pButton
               type="button"
+              icon="pi pi-list-check"
               label="Enqueue batch"
+              [pTooltip]="'Đưa nhiều URL vào hàng chờ'"
               (click)="submitBatch()"
               [disabled]="busy() || !batchUrls().length"
             ></button>
@@ -115,6 +132,10 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
         border-color: rgba(108, 140, 255, 0.45);
         color: var(--md-text);
         background: rgba(108, 140, 255, 0.1);
+      }
+      .mode__ico {
+        margin-right: 8px;
+        opacity: 0.85;
       }
       .row {
         margin-top: 16px;

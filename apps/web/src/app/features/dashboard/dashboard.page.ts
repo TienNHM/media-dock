@@ -18,16 +18,28 @@ import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
       </div>
 
       <div class="grid">
-        <p-card header="Active jobs">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="kpi-head"><i class="pi pi-bolt"></i><span>Active jobs</span></div>
+          </ng-template>
           <p class="kpi">{{ active() }}</p>
         </p-card>
-        <p-card header="Queued">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="kpi-head"><i class="pi pi-list"></i><span>Queued</span></div>
+          </ng-template>
           <p class="kpi">{{ queued() }}</p>
         </p-card>
-        <p-card header="Failed (recent)">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="kpi-head"><i class="pi pi-times-circle"></i><span>Failed (recent)</span></div>
+          </ng-template>
           <p class="kpi">{{ failed() }}</p>
         </p-card>
-        <p-card header="Queue health">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="kpi-head"><i class="pi pi-heart"></i><span>Queue health</span></div>
+          </ng-template>
           <p class="kpi muted">{{ health() }}</p>
         </p-card>
       </div>
@@ -41,6 +53,16 @@ import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
       .muted {
         color: var(--md-text-muted);
         margin: 0;
+      }
+      .kpi-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 650;
+      }
+      .kpi-head .pi {
+        opacity: 0.85;
+        font-size: 1rem;
       }
       .grid {
         margin-top: 16px;

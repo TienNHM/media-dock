@@ -3,12 +3,13 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
+import { TooltipModule } from 'primeng/tooltip';
 import { RuntimeApiService } from '../../core/services/runtime-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-settings-page',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TooltipModule],
   template: `
     <div class="page">
       <h1>Settings</h1>
@@ -44,7 +45,9 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
               <button
                 pButton
                 type="button"
+                icon="pi pi-file-check"
                 label="Lưu ghi đè"
+                [pTooltip]="'Lưu đường dẫn ghi đè vào DB'"
                 (click)="savePath()"
                 [disabled]="saveBusy()"
               ></button>
@@ -52,7 +55,9 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
                 pButton
                 type="button"
                 class="p-button-secondary"
+                icon="pi pi-trash"
                 label="Xóa ghi đè DB"
+                [pTooltip]="'Xóa ghi đè — dùng mặc định / config'"
                 (click)="clearDbOverride()"
                 [disabled]="saveBusy()"
               ></button>

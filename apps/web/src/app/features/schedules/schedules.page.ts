@@ -6,18 +6,35 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { Textarea } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
 import type { ScheduleDto } from '../../core/models/job.models';
 import { SchedulesApiService } from '../../core/services/schedules-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-schedules-page',
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, Textarea],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    Textarea,
+    TooltipModule,
+  ],
   template: `
     <div class="page">
       <div class="page__header">
         <h1>Schedules</h1>
-        <button pButton type="button" label="New schedule" (click)="openCreate()"></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-plus"
+          label="New schedule"
+          [pTooltip]="'Create schedule'"
+          (click)="openCreate()"
+        ></button>
       </div>
       <p class="muted">
         Cron (standard 5 fields, e.g. <span class="mono">0 * * * *</span> hourly). Template JSON example:
@@ -35,7 +52,10 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
             <th>Cron</th>
             <th>TZ</th>
             <th>Next</th>
-            <th></th>
+            <th scope="col" class="col-actions">
+              <span class="sr-only">Actions</span>
+              <i class="pi pi-bolt" aria-hidden="true" pTooltip="Actions" tooltipPosition="bottom"></i>
+            </th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-s>
@@ -45,8 +65,24 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
             <td>{{ s.timezone }}</td>
             <td class="mono">{{ s.nextRunAt | date: 'short' }}</td>
             <td class="actions">
-              <button pButton type="button" class="p-button-text" label="Edit" (click)="openEdit(s)"></button>
-              <button pButton type="button" class="p-button-text p-button-danger" label="Delete" (click)="remove(s)"></button>
+              <button
+                pButton
+                type="button"
+                class="p-button-text p-button-rounded p-button-sm"
+                icon="pi pi-pencil"
+                [pTooltip]="'Edit'"
+                [attr.aria-label]="'Edit schedule'"
+                (click)="openEdit(s)"
+              ></button>
+              <button
+                pButton
+                type="button"
+                class="p-button-text p-button-rounded p-button-sm p-button-danger"
+                icon="pi pi-trash"
+                [pTooltip]="'Delete'"
+                [attr.aria-label]="'Delete schedule'"
+                (click)="remove(s)"
+              ></button>
             </td>
           </tr>
         </ng-template>
@@ -70,8 +106,24 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
         <label class="row-check"><input type="checkbox" [(ngModel)]="formEnabled" /> Enabled</label>
       </div>
       <ng-template pTemplate="footer">
-        <button pButton type="button" label="Cancel" class="p-button-text" (click)="dialogOpen.set(false)"></button>
-        <button pButton type="button" label="Save" (click)="save()" [disabled]="busy()"></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-times"
+          class="p-button-text p-button-rounded"
+          [pTooltip]="'Cancel'"
+          [attr.aria-label]="'Cancel'"
+          (click)="dialogOpen.set(false)"
+        ></button>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-check"
+          label="Save"
+          [attr.aria-label]="'Save schedule'"
+          (click)="save()"
+          [disabled]="busy()"
+        ></button>
       </ng-template>
     </p-dialog>
   `,
@@ -92,7 +144,24 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
       .err {
         color: #f87171;
       }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .col-actions {
+        width: 4.5rem;
+        text-align: center;
+      }
       .actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
         white-space: nowrap;
       }
       .form {

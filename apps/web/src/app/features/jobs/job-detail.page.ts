@@ -4,18 +4,23 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import type { JobArtifactDto, JobDetailDto, JobStatus } from '../../core/models/job.models';
+import { artifactKindIcon, jobStatusPrimeIcon } from '../../core/ui/job-visuals';
 import { DesktopBridgeService } from '../../core/services/desktop-bridge.service';
 import { JobsApiService } from '../../core/services/jobs-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-job-detail-page',
-  imports: [CommonModule, RouterLink, ButtonModule, TableModule, TagModule],
+  imports: [CommonModule, RouterLink, ButtonModule, TableModule, TagModule, TooltipModule],
   template: `
     <div class="page">
       <div class="page__header">
-        <a routerLink="/queue" class="back">← Queue</a>
+        <a routerLink="/queue" class="back" pTooltip="Back to queue" [attr.aria-label]="'Back to queue'"
+          ><i class="pi pi-arrow-left back__ico" aria-hidden="true"></i
+          ><span class="sr-only">Queue</span></a
+        >
         <h1>Job</h1>
       </div>
 
@@ -25,7 +30,12 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
         @let j = job()!;
         <div class="meta card">
           <div class="row">
-            <p-tag [value]="j.status" [severity]="severity(j.status)"></p-tag>
+            <p-tag
+              [value]="j.status"
+              [severity]="severity(j.status)"
+              [icon]="jobStatusPrimeIcon(j.status)"
+              styleClass="job-detail-tag"
+            ></p-tag>
             <span class="mono id">{{ j.id }}</span>
           </div>
           <p class="url mono">{{ j.url }}</p>
@@ -75,7 +85,14 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
               </ng-template>
               <ng-template pTemplate="body" let-a>
                 <tr>
-                  <td>{{ a.kind }}</td>
+                  <td>
+                    <i
+                      class="artifact-kind pi md-job-ico md-job-ico--neutral"
+                      [ngClass]="artifactKindIcon(a.kind)"
+                      [pTooltip]="a.kind"
+                      [attr.aria-label]="'Kind: ' + a.kind"
+                    ></i>
+                  </td>
                   <td class="mono path">{{ a.path }}</td>
                   <td class="mono">{{ a.sizeBytes != null ? (a.sizeBytes | number) : '—' }}</td>
                 </tr>
@@ -90,15 +107,20 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
               <button
                 pButton
                 type="button"
-                class="p-button-secondary"
-                label="Open folder"
+                class="p-button-secondary p-button-rounded"
+                icon="pi pi-folder-open"
+                [pTooltip]="'Open folder'"
+                [attr.aria-label]="'Open download folder'"
                 (click)="openDownloadFolder(vid)"
                 [disabled]="busy()"
               ></button>
               <button
                 pButton
                 type="button"
-                label="Preview video"
+                class="p-button-rounded"
+                icon="pi pi-play"
+                [pTooltip]="'Preview video'"
+                [attr.aria-label]="'Preview video'"
                 (click)="previewVideo(vid)"
                 [disabled]="busy()"
               ></button>
@@ -115,7 +137,10 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
             <button
               pButton
               type="button"
-              label="Retry (new job)"
+              icon="pi pi-replay"
+              class="p-button-success p-button-rounded"
+              [pTooltip]="'Retry — new job from this URL'"
+              [attr.aria-label]="'Retry — new job'"
               (click)="retry()"
               [disabled]="busy()"
             ></button>
@@ -134,13 +159,33 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
       .page__header h1 {
         margin: 8px 0 0;
       }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
       .back {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
         color: var(--md-text-muted);
         text-decoration: none;
         font-size: 0.9rem;
       }
+      .back__ico {
+        font-size: 0.95rem;
+      }
       .back:hover {
         color: var(--md-text);
+      }
+      .artifact-kind {
+        display: inline-flex;
       }
       .card {
         margin-top: 14px;
@@ -211,6 +256,9 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
   ],
 })
 export class JobDetailPage implements OnInit {
+  readonly jobStatusPrimeIcon = jobStatusPrimeIcon;
+  readonly artifactKindIcon = artifactKindIcon;
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly jobsApi = inject(JobsApiService);
