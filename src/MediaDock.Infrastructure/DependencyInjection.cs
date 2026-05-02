@@ -1,11 +1,13 @@
 using MediaDock.Application.Ports.Acquisition;
 using MediaDock.Application.Ports.Jobs;
+using MediaDock.Application.Ports.Library;
 using MediaDock.Application.Ports.Notifications;
 using MediaDock.Application.Ports.Presets;
 using MediaDock.Application.Ports.Schedules;
 using MediaDock.Application.Ports.Settings;
 using MediaDock.Infrastructure.Downloads;
 using MediaDock.Infrastructure.Jobs;
+using MediaDock.Infrastructure.Library;
 using MediaDock.Infrastructure.Notifications;
 using MediaDock.Infrastructure.Persistence;
 using MediaDock.Infrastructure.Presets;
@@ -29,6 +31,7 @@ public static class DependencyInjection
         services.AddScoped<IJobRepository, EfJobRepository>();
         services.AddScoped<IDownloadsRootStore, EfDownloadsRootStore>();
         services.AddScoped<IDownloadsPathResolver, DownloadsPathResolver>();
+        services.AddScoped<ILibraryStoredFileRemoval, PhysicalLibraryStoredFileRemoval>();
         services.AddScoped<IPresetRepository, EfPresetRepository>();
         services.AddScoped<IScheduleRepository, EfScheduleRepository>();
         services.AddScoped<ICookieProfileStore, EfCookieProfileStore>();

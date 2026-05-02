@@ -9,6 +9,10 @@ public interface IJobRepository
 
     Task<IReadOnlyList<Job>> ListRecentCompletedWithArtifactsAsync(int take, CancellationToken cancellationToken = default);
     Task AddAsync(Job job, CancellationToken cancellationToken = default);
+
+    /// <summary>Remove a tracked <see cref="Job"/> aggregate (tracked load required). Cascades dependents.</summary>
+    void Remove(Job job);
+
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
     Task<bool> TryTransitionAsync(
         Guid jobId,

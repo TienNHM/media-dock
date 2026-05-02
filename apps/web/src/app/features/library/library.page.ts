@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -145,6 +146,17 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                     (click)="copyPath(item.jobId, primary.path)"
                   ></button>
                 }
+                <button
+                  pButton
+                  type="button"
+                  class="p-button-text p-button-sm p-button-danger ml-auto"
+                  icon="pi pi-trash"
+                  label="Remove"
+                  severity="danger"
+                  [loading]="removingJobId() === item.jobId"
+                  [disabled]="removingJobId() !== null"
+                  (click)="confirmRemove(item)"
+                ></button>
               </div>
 
               @if (item.files.length) {
@@ -321,6 +333,9 @@ import { LibraryApiService } from '../../core/services/library-api.service';
         padding-top: 2px;
         border-top: 1px solid var(--md-border-subtle, rgba(255, 255, 255, 0.06));
       }
+      .lib-card__actions .ml-auto {
+        margin-inline-start: auto;
+      }
       .lib-card__technical {
         font-size: 0.82rem;
         color: var(--md-text-muted);
@@ -375,6 +390,7 @@ export class LibraryPage implements OnInit {
   /** Jobs where <video> element failed load (_codec / range / CORS) — poster or thumbnail may still apply. */
   readonly previewFailed = signal(new Set<string>());
   readonly copyFlash = signal<string | null>(null);
+  readonly removingJobId = signal<string | null>(null);
 
   async ngOnInit(): Promise<void> {
     await this.load();
@@ -476,6 +492,43 @@ export class LibraryPage implements OnInit {
   private clampChars(s: string, max: number): string {
     const x = s.trim();
     return x.length <= max ? x : `${x.slice(0, max - 1)}…`;
+  }
+
+  async confirmRemove(item: LibraryItemDto): Promise<void> {
+    if (
+      !globalThis.confirm(
+        'Remove this download from Library? Listed files under your downloads folder will be deleted, and history for this job is removed.',
+      )
+    ) {
+      return;
+    }
+
+    this.removingJobId.set(item.jobId);
+    try {
+      await this.api.remove(item.jobId);
+      this.previewFailed.update((s) => {
+        const next = new Set(s);
+        next.delete(item.jobId);
+        return next;
+      });
+      this.items.update((list) => list.filter((i) => i.jobId !== item.jobId));
+    } catch (e: unknown) {
+      if (e instanceof HttpErrorResponse && e.status === 404) {
+        this.error.set('That download is missing or cannot be removed from Library (completed jobs only).');
+      } else if (e instanceof HttpErrorResponse) {
+        const detail =
+          typeof e.error === 'object' && e.error !== null && 'title' in e.error && typeof e.error.title === 'string'
+            ? e.error.title
+            : e.message;
+        this.error.set(detail.trim() ? detail : `Remove failed (HTTP ${e.status}).`);
+      } else if (e instanceof Error) {
+        this.error.set(e.message);
+      } else {
+        this.error.set('Remove failed.');
+      }
+    } finally {
+      this.removingJobId.set(null);
+    }
   }
 
   async load(): Promise<void> {

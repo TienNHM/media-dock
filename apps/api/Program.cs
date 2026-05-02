@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text.Json.Serialization;
 using MediaDock.Acquisition;
 using MediaDock.Api.Endpoints;
+using MediaDock.Api.ExceptionHandling;
 using MediaDock.Api.Hubs;
 using MediaDock.Api.Auth;
 using MediaDock.Api.Middleware;
@@ -78,6 +79,9 @@ builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
         .AllowCredentials()));
 
 builder.Services.AddAuthorization();
+builder.Services.AddProblemDetails();
+if (!builder.Environment.IsDevelopment())
+    builder.Services.AddExceptionHandler<FluentValidationExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
@@ -90,6 +94,10 @@ await using (var scope = app.Services.CreateAsyncScope())
 }
 
 app.UseSerilogRequestLogging();
+
+if (!app.Environment.IsDevelopment())
+    app.UseExceptionHandler();
+
 app.UseCors();
 app.UseLocalSidecarAuth();
 

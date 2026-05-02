@@ -1,6 +1,7 @@
 using MediatR;
 using MediaDock.Application.Ports.Acquisition;
 using MediaDock.Application.Ports.Jobs;
+using MediaDock.Application.Ports.Library;
 using MediaDock.Domain.Jobs;
 
 namespace MediaDock.Application.Jobs.Library;
@@ -25,21 +26,11 @@ public sealed class GetLibraryArtifactPreviewQueryHandler(IJobRepository jobs, I
 
         var rootDir = Path.GetFullPath(await downloadPaths.GetDownloadsRootAsync(cancellationToken));
         var filePath = Path.GetFullPath(artifact.Path);
-        if (!IsUnderDirectory(rootDir, filePath) || !File.Exists(filePath))
+        if (!ArtifactStoragePathSafety.IsStrictChildOfRoot(rootDir, filePath) || !File.Exists(filePath))
             return null;
 
         var contentType = GuessContentType(filePath);
         return new LibraryArtifactPreview(filePath, contentType, Path.GetFileName(filePath));
-    }
-
-    private static bool IsUnderDirectory(string parentDir, string filePath)
-    {
-        var p = parentDir.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        var c = filePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        if (c.Length <= p.Length)
-            return false;
-        return c.StartsWith(p + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
-            || c.StartsWith(p + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string GuessContentType(string path) =>

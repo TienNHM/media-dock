@@ -18,4 +18,9 @@ export class LibraryApiService {
   previewUrl(jobId: string, artifactId: string): string {
     return `${this.base}/api/library/${jobId}/artifacts/${artifactId}/preview`;
   }
+
+  /** Deletes artifact files under the downloads root and removes the completed job record. */
+  remove(jobId: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${this.base}/api/library/${jobId}`));
+  }
 }

@@ -10,6 +10,8 @@ public sealed class EfJobRepository(MediaDockDbContext db) : IJobRepository
     public async Task AddAsync(Job job, CancellationToken cancellationToken = default) =>
         await db.Jobs.AddAsync(job, cancellationToken);
 
+    public void Remove(Job job) => db.Jobs.Remove(job);
+
     public async Task<Job?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) =>
         await db.Jobs
             .AsSplitQuery()
