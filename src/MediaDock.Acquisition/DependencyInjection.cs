@@ -7,7 +7,6 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddAcquisition(this IServiceCollection services)
     {
-        services.AddSingleton<IDownloadsPathResolver, DownloadsPathResolver>();
         services.AddSingleton<YtDlpBinaryResolver>();
         services.AddSingleton<FfmpegBinaryResolver>();
         services.AddSingleton<IMediaProbe, YtDlpMediaProbe>();

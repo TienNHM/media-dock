@@ -13,4 +13,6 @@ public sealed record JobSummaryDto(
     JobStatus Status,
     int Priority,
     DateTime CreatedAt,
+    DateTime? StartedAt,
+    DateTime? CompletedAt,
     string? LastErrorMessage);

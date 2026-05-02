@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { JobsApiService } from '../../core/services/jobs-api.service';
+import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
 
 @Component({
   standalone: true,
@@ -60,17 +63,30 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
 })
 export class DashboardPage implements OnInit {
   private readonly jobsApi = inject(JobsApiService);
+  private readonly realtime = inject(JobsRealtimeService);
 
   readonly active = signal(0);
   readonly queued = signal(0);
   readonly failed = signal(0);
   readonly health = signal('Healthy');
 
+  constructor() {
+    toObservable(this.realtime.lastProgress)
+      .pipe(debounceTime(750), takeUntilDestroyed())
+      .subscribe(() => void this.refresh());
+  }
+
   async ngOnInit(): Promise<void> {
+    await this.refresh();
+  }
+
+  private async refresh(): Promise<void> {
     const jobs = await this.jobsApi.listJobs(500);
-    this.queued.set(jobs.filter((j) => j.status === 'Queued' || j.status === 'Downloading' || j.status === 'Probing').length);
+    this.queued.set(
+      jobs.filter((j) => j.status === 'Queued' || j.status === 'Downloading' || j.status === 'Probing').length,
+    );
     this.failed.set(jobs.filter((j) => j.status === 'Failed' || j.status === 'FailedPermanent').length);
     this.active.set(jobs.filter((j) => j.status === 'Downloading' || j.status === 'Probing').length);
-    if (this.failed() > 0) this.health.set('Needs attention');
+    this.health.set(this.failed() > 0 ? 'Needs attention' : 'Healthy');
   }
 }

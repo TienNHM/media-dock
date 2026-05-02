@@ -104,6 +104,11 @@ app.MapHealthChecks(
 app.MapGet("/health/live", () => Results.Text("OK", "text/plain"));
 
 app.MapJobsEndpoints();
+app.MapPresetsEndpoints();
+app.MapSchedulesEndpoints();
+app.MapCookiesEndpoints();
+app.MapLibraryEndpoints();
+app.MapNotificationsEndpoints();
 app.MapRuntimeEndpoints();
 app.MapHub<JobsHub>("/hubs/jobs");
 

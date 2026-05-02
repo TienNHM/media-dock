@@ -15,6 +15,7 @@ public sealed class EfJobRepository(MediaDockDbContext db) : IJobRepository
             .AsSplitQuery()
             .Include(j => j.CurrentSpec)
             .Include(j => j.Progress)
+            .Include(j => j.Artifacts)
             .FirstOrDefaultAsync(j => j.Id == id, cancellationToken);
 
     public async Task<IReadOnlyList<Job>> ListAsync(int take, JobStatus? status, CancellationToken cancellationToken = default)
@@ -28,6 +29,18 @@ public sealed class EfJobRepository(MediaDockDbContext db) : IJobRepository
             .Take(take)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<IReadOnlyList<Job>> ListRecentCompletedWithArtifactsAsync(
+        int take,
+        CancellationToken cancellationToken = default) =>
+        await db.Jobs
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(j => j.Artifacts)
+            .Where(j => j.Status == JobStatus.Completed)
+            .OrderByDescending(j => j.CompletedAt)
+            .Take(take)
+            .ToListAsync(cancellationToken);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) =>
         db.SaveChangesAsync(cancellationToken);
@@ -80,6 +93,39 @@ public sealed class EfJobRepository(MediaDockDbContext db) : IJobRepository
             job.LastErrorClass = errorClass;
         if (to is JobStatus.Completed or JobStatus.Cancelled or JobStatus.FailedPermanent or JobStatus.Failed)
             job.CompletedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpsertProgressAsync(
+        Guid jobId,
+        string phase,
+        long? bytesDone,
+        long? bytesTotal,
+        CancellationToken cancellationToken = default)
+    {
+        var row = await db.JobProgress.FirstOrDefaultAsync(j => j.JobId == jobId, cancellationToken);
+        if (row is null)
+        {
+            row = new JobProgress { JobId = jobId };
+            await db.JobProgress.AddAsync(row, cancellationToken);
+        }
+
+        row.Phase = phase;
+        row.BytesDone = bytesDone;
+        row.BytesTotal = bytesTotal;
+        row.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ReplaceArtifactsAsync(
+        Guid jobId,
+        IEnumerable<JobArtifact> artifacts,
+        CancellationToken cancellationToken = default)
+    {
+        var existing = await db.JobArtifacts.Where(a => a.JobId == jobId).ToListAsync(cancellationToken);
+        db.JobArtifacts.RemoveRange(existing);
+        foreach (var a in artifacts)
+            await db.JobArtifacts.AddAsync(a, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
     }
 }

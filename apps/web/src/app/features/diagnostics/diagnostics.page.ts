@@ -1,16 +1,32 @@
-import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
+import { API_BASE_URL } from '../../core/config/api.config';
 import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
+import { RuntimeApiService } from '../../core/services/runtime-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-diagnostics-page',
+  imports: [CommonModule],
   template: `
     <div class="page">
       <h1>Diagnostics</h1>
-      <p class="muted">Live telemetry + support bundle (Phase 2).</p>
+      <p class="muted">Health checks, downloads root, last SignalR progress.</p>
 
       <div class="box mono">
-        <div><strong>Last job progress</strong></div>
+        <div><strong>GET /health/ready</strong></div>
+        <pre>{{ healthBody() }}</pre>
+      </div>
+
+      <div class="box mono">
+        <div><strong>GET /api/runtime/downloads</strong></div>
+        <pre>{{ downloadsBody() }}</pre>
+      </div>
+
+      <div class="box mono">
+        <div><strong>Last job progress (SignalR)</strong></div>
         <pre>{{ pretty(realtime.lastProgress()) }}</pre>
       </div>
     </div>
@@ -25,21 +41,44 @@ import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
         margin: 0 0 12px;
       }
       .box {
-        border: 1px solid var(--md-border);
+        border: 1px solid var(--md-border, rgba(255, 255, 255, 0.12));
         border-radius: 12px;
         padding: 12px;
         background: rgba(255, 255, 255, 0.03);
         overflow: auto;
+        margin-bottom: 12px;
       }
       pre {
         margin: 8px 0 0;
         white-space: pre-wrap;
+        font-size: 0.85rem;
       }
     `,
   ],
 })
-export class DiagnosticsPage {
+export class DiagnosticsPage implements OnInit {
   readonly realtime = inject(JobsRealtimeService);
+  private readonly http = inject(HttpClient);
+  private readonly base = inject(API_BASE_URL);
+  private readonly runtimeApi = inject(RuntimeApiService);
+
+  readonly healthBody = signal<string>('…');
+  readonly downloadsBody = signal<string>('…');
+
+  async ngOnInit(): Promise<void> {
+    try {
+      const h = await firstValueFrom(this.http.get<unknown>(`${this.base}/health/ready`));
+      this.healthBody.set(JSON.stringify(h, null, 2));
+    } catch (e) {
+      this.healthBody.set(e instanceof Error ? e.message : 'request failed');
+    }
+    try {
+      const d = await this.runtimeApi.getDownloadsInfo();
+      this.downloadsBody.set(JSON.stringify(d, null, 2));
+    } catch (e) {
+      this.downloadsBody.set(e instanceof Error ? e.message : 'request failed');
+    }
+  }
 
   pretty(v: unknown): string {
     return JSON.stringify(v, null, 2);

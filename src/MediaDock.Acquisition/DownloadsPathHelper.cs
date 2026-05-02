@@ -5,10 +5,13 @@ public static class DownloadsPathHelper
     /// <summary>
     /// Resolves the root directory that contains per-job download folders (each job uses a subfolder by job id).
     /// </summary>
-    public static string ResolveDownloadsRoot(AcquisitionOptions options)
+    public static string ResolveDownloadsRoot(AcquisitionOptions options, string? persistedDatabasePath = null)
     {
         if (!string.IsNullOrWhiteSpace(options.DownloadsRootPath))
             return Path.GetFullPath(options.DownloadsRootPath);
+
+        if (!string.IsNullOrWhiteSpace(persistedDatabasePath))
+            return Path.GetFullPath(persistedDatabasePath);
 
         var fallback = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -17,6 +20,6 @@ public static class DownloadsPathHelper
         return Path.GetFullPath(fallback);
     }
 
-    public static string ResolveJobDownloadDirectory(AcquisitionOptions options, Guid jobId) =>
-        Path.Combine(ResolveDownloadsRoot(options), jobId.ToString("N"));
+    public static string ResolveJobDownloadDirectory(AcquisitionOptions options, Guid jobId, string? persistedDatabasePath = null) =>
+        Path.Combine(ResolveDownloadsRoot(options, persistedDatabasePath), jobId.ToString("N"));
 }

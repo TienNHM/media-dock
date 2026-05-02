@@ -52,7 +52,15 @@ public sealed class MediaDockDbContext(DbContextOptions<MediaDockDbContext> opti
         {
             e.HasKey(x => new { x.Key, x.Scope });
         });
-        modelBuilder.Entity<InAppNotification>(e => e.HasKey(x => x.Id));
+        modelBuilder.Entity<InAppNotification>(e =>
+        {
+            e.HasKey(x => x.Id);
+            e.HasIndex(x => x.JobId);
+            e.HasOne<Job>()
+                .WithMany()
+                .HasForeignKey(x => x.JobId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
 
         UtcDateTimeConverters.Apply(modelBuilder);
     }

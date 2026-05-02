@@ -9,6 +9,7 @@
     <ProjectReference Include="..\MediaDock.Domain\MediaDock.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Cronos" />
     <PackageReference Include="FluentValidation" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="MediatR" />

@@ -1,4 +1,5 @@
 using MediaDock.Application.Ports.Jobs;
+using MediaDock.Application.Ports.Presets;
 using MediaDock.Application.Ports.Queue;
 using MediaDock.Domain.Jobs;
 using MediatR;
@@ -8,6 +9,7 @@ namespace MediaDock.Application.Jobs.CreateJob;
 
 public sealed class CreateJobCommandHandler(
     IJobRepository jobs,
+    IPresetRepository presets,
     IDownloadQueue queue,
     ILogger<CreateJobCommandHandler> logger) : IRequestHandler<CreateJobCommand, Guid>
 {
@@ -17,9 +19,19 @@ public sealed class CreateJobCommandHandler(
         var correlationId = Guid.CreateVersion7().ToString("N");
         var platform = DetectPlatform(request.Url);
 
+        var specJson = JobSpecJson.DefaultJson();
+        if (request.PresetId is { } pid)
+        {
+            var preset = await presets.GetByIdAsync(pid, cancellationToken);
+            if (preset is not null)
+                specJson = string.IsNullOrWhiteSpace(preset.SpecJson) ? JobSpecJson.DefaultJson() : preset.SpecJson;
+        }
+
+        var lineageRoot = request.LineageRootId ?? id;
         var job = new Job
         {
             Id = id,
+            ParentJobId = request.ParentJobId,
             Url = request.Url.Trim(),
             SourcePlatform = platform,
             Status = JobStatus.Pending,
@@ -29,13 +41,13 @@ public sealed class CreateJobCommandHandler(
             Attempt = 1,
             CorrelationId = correlationId,
             CreatedAt = DateTime.UtcNow,
-            LineageRootId = id,
+            LineageRootId = lineageRoot,
             CurrentSpec = new JobSpec
             {
                 Id = Guid.CreateVersion7(),
                 JobId = id,
                 Attempt = 1,
-                SpecJson = """{"format":"best","subs":false,"thumb":false}"""
+                SpecJson = specJson
             }
         };
 

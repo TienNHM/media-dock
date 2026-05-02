@@ -17,6 +17,8 @@ public sealed class ListJobsQueryHandler(IJobRepository jobs)
                 j.Status,
                 j.Priority,
                 j.CreatedAt,
+                j.StartedAt,
+                j.CompletedAt,
                 j.LastErrorMessage))
             .ToList();
     }

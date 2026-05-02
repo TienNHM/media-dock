@@ -59,6 +59,11 @@ public sealed class YtDlpMediaDownloader(
             args.Add(spec.CookiesFilePath);
         }
 
+        if (spec.WriteSubtitles)
+            args.Add("--write-subs");
+        if (spec.WriteThumbnail)
+            args.Add("--write-thumbnail");
+
         yield return new DownloadProgressEvent("started", 0, null, null, null);
 
         var result = await CliWrap.Cli.Wrap(path!)

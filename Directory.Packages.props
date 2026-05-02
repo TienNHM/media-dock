@@ -10,6 +10,7 @@
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.0" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="8.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageVersion Include="Cronos" Version="0.8.4" />
     <PackageVersion Include="CliWrap" Version="3.6.7" />
     <PackageVersion Include="Coravel" Version="6.0.2" />
     <PackageVersion Include="EFCore.NamingConventions" Version="9.0.0" />

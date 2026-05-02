@@ -15,6 +15,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/acquire/acquire.page').then((m) => m.AcquirePage),
       },
       {
+        path: 'jobs/:id',
+        loadComponent: () => import('./features/jobs/job-detail.page').then((m) => m.JobDetailPage),
+      },
+      {
         path: 'queue',
         loadComponent: () => import('./features/queue/queue.page').then((m) => m.QueuePage),
       },

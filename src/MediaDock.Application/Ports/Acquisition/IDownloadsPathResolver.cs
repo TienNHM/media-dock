@@ -5,7 +5,7 @@ namespace MediaDock.Application.Ports.Acquisition;
 /// </summary>
 public interface IDownloadsPathResolver
 {
-    string GetDownloadsRoot();
+    Task<string> GetDownloadsRootAsync(CancellationToken cancellationToken = default);
 
-    string GetJobDownloadDirectory(Guid jobId);
+    Task<string> GetJobDownloadDirectoryAsync(Guid jobId, CancellationToken cancellationToken = default);
 }

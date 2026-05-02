@@ -1,24 +1,208 @@
-import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TableModule } from 'primeng/table';
+import { Textarea } from 'primeng/textarea';
+import type { ScheduleDto } from '../../core/models/job.models';
+import { SchedulesApiService } from '../../core/services/schedules-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-schedules-page',
+  imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, Textarea],
   template: `
     <div class="page">
-      <h1>Schedules</h1>
-      <p class="muted">Cron-based acquisition (Phase 2).</p>
+      <div class="page__header">
+        <h1>Schedules</h1>
+        <button pButton type="button" label="New schedule" (click)="openCreate()"></button>
+      </div>
+      <p class="muted">
+        Cron (standard 5 fields, e.g. <span class="mono">0 * * * *</span> hourly). Template JSON example:
+        <span class="mono">{{ templateExample }}</span>
+      </p>
+
+      @if (error()) {
+        <p class="err">{{ error() }}</p>
+      }
+
+      <p-table [value]="schedules()" [tableStyle]="{ 'min-width': '56rem' }">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Enabled</th>
+            <th>Cron</th>
+            <th>TZ</th>
+            <th>Next</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-s>
+          <tr>
+            <td>{{ s.enabled }}</td>
+            <td class="mono">{{ s.cron }}</td>
+            <td>{{ s.timezone }}</td>
+            <td class="mono">{{ s.nextRunAt | date: 'short' }}</td>
+            <td class="actions">
+              <button pButton type="button" class="p-button-text" label="Edit" (click)="openEdit(s)"></button>
+              <button pButton type="button" class="p-button-text p-button-danger" label="Delete" (click)="remove(s)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
+
+    <p-dialog
+      [header]="editingId() ? 'Edit schedule' : 'New schedule'"
+      [visible]="dialogOpen()"
+      (visibleChange)="dialogOpen.set($event)"
+      [modal]="true"
+      [style]="{ width: 'min(720px, 94vw)' }"
+    >
+      <div class="form">
+        <label>Cron</label>
+        <input pInputText [(ngModel)]="formCron" class="w-full mono" placeholder="*/15 * * * *" />
+        <label>Timezone (IANA, e.g. UTC or America/New_York)</label>
+        <input pInputText [(ngModel)]="formTz" class="w-full" />
+        <label>Job template JSON</label>
+        <textarea pTextarea [(ngModel)]="formTemplate" rows="6" class="w-full mono"></textarea>
+        <label class="row-check"><input type="checkbox" [(ngModel)]="formEnabled" /> Enabled</label>
+      </div>
+      <ng-template pTemplate="footer">
+        <button pButton type="button" label="Cancel" class="p-button-text" (click)="dialogOpen.set(false)"></button>
+        <button pButton type="button" label="Save" (click)="save()" [disabled]="busy()"></button>
+      </ng-template>
+    </p-dialog>
   `,
   styles: [
     `
+      .page__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
       h1 {
-        margin: 0 0 6px;
+        margin: 0;
       }
       .muted {
         color: var(--md-text-muted);
-        margin: 0;
+      }
+      .err {
+        color: #f87171;
+      }
+      .actions {
+        white-space: nowrap;
+      }
+      .form {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .form label {
+        font-size: 0.85rem;
+        margin-top: 4px;
+      }
+      .row-check {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mono {
+        font-family: ui-monospace, monospace;
+        font-size: 0.85rem;
       }
     `,
   ],
 })
-export class SchedulesPage {}
+export class SchedulesPage implements OnInit {
+  readonly templateExample = '{"url":"https://…","priority":0,"presetId":null}';
+
+  private readonly api = inject(SchedulesApiService);
+
+  readonly schedules = signal<ScheduleDto[]>([]);
+  readonly error = signal<string | undefined>(undefined);
+  readonly dialogOpen = signal(false);
+  readonly editingId = signal<string | null>(null);
+  readonly busy = signal(false);
+
+  formCron = '*/30 * * * *';
+  formTz = 'UTC';
+  formTemplate = '{"url":"https://www.youtube.com/watch?v=dQw4w9WgXcQ","priority":0}';
+  formEnabled = true;
+
+  async ngOnInit(): Promise<void> {
+    await this.load();
+  }
+
+  async load(): Promise<void> {
+    this.error.set(undefined);
+    try {
+      this.schedules.set(await this.api.list());
+    } catch (e) {
+      this.error.set(e instanceof Error ? e.message : 'Failed to load schedules');
+    }
+  }
+
+  openCreate(): void {
+    this.editingId.set(null);
+    this.formCron = '*/30 * * * *';
+    this.formTz = 'UTC';
+    this.formTemplate = '{"url":"https://www.youtube.com/watch?v=dQw4w9WgXcQ","priority":0}';
+    this.formEnabled = true;
+    this.dialogOpen.set(true);
+  }
+
+  openEdit(s: ScheduleDto): void {
+    this.editingId.set(s.id);
+    this.formCron = s.cron;
+    this.formTz = s.timezone;
+    this.formTemplate = s.jobTemplateJson;
+    this.formEnabled = s.enabled;
+    this.dialogOpen.set(true);
+  }
+
+  async save(): Promise<void> {
+    this.busy.set(true);
+    try {
+      const id = this.editingId();
+      if (id)
+        await this.api.update(id, {
+          cron: this.formCron,
+          timezone: this.formTz,
+          jobTemplateJson: this.formTemplate,
+          enabled: this.formEnabled,
+        });
+      else
+        await this.api.create({
+          cron: this.formCron,
+          timezone: this.formTz,
+          jobTemplateJson: this.formTemplate,
+          enabled: this.formEnabled,
+        });
+      this.dialogOpen.set(false);
+      await this.load();
+    } catch (e: unknown) {
+      const msg =
+        e && typeof e === 'object' && 'error' in e
+          ? JSON.stringify((e as { error?: unknown }).error)
+          : e instanceof Error
+            ? e.message
+            : 'Save failed';
+      this.error.set(msg);
+    } finally {
+      this.busy.set(false);
+    }
+  }
+
+  async remove(s: ScheduleDto): Promise<void> {
+    if (!globalThis.confirm('Delete this schedule?')) return;
+    try {
+      await this.api.delete(s.id);
+      await this.load();
+    } catch (e) {
+      this.error.set(e instanceof Error ? e.message : 'Delete failed');
+    }
+  }
+}

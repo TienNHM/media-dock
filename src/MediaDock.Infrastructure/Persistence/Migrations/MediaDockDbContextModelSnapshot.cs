@@ -223,6 +223,10 @@ namespace MediaDock.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("created_at");
 
+                    b.Property<Guid?>("JobId")
+                        .HasColumnType("TEXT")
+                        .HasColumnName("job_id");
+
                     b.Property<DateTime?>("ReadAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("read_at");
@@ -239,6 +243,9 @@ namespace MediaDock.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_notifications");
+
+                    b.HasIndex("JobId")
+                        .HasDatabaseName("ix_notifications_job_id");
 
                     b.ToTable("notifications", (string)null);
                 });
@@ -377,6 +384,15 @@ namespace MediaDock.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_job_specs_jobs_job_id");
 
                     b.Navigation("Job");
+                });
+
+            modelBuilder.Entity("MediaDock.Domain.Notifications.InAppNotification", b =>
+                {
+                    b.HasOne("MediaDock.Domain.Jobs.Job", null)
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_notifications_jobs_job_id");
                 });
 
             modelBuilder.Entity("MediaDock.Domain.Jobs.Job", b =>

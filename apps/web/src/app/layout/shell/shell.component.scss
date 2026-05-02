@@ -99,8 +99,117 @@
 }
 
 .shell__topbarMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 12px;
   color: var(--md-text-muted);
+}
+
+.shell__topbarSep {
+  opacity: 0.5;
+}
+
+.notif-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--md-border-subtle, rgba(255, 255, 255, 0.12));
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--md-text);
+  cursor: pointer;
+}
+
+.notif-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  padding: 0 5px;
+  height: 18px;
+  border-radius: 9px;
+  background: #c2410c;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+.notif-panel__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.notif-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: min(400px, 55vh);
+  overflow: auto;
+}
+
+.notif-item {
+  padding: 10px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--md-border-subtle, rgba(255, 255, 255, 0.06));
+}
+
+.notif-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.notif-item--unread {
+  background: rgba(108, 140, 255, 0.06);
+}
+
+.notif-item__title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.notif-item__body {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--md-text-muted);
+  white-space: pre-wrap;
+}
+
+.notif-open-job {
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--md-border-subtle, rgba(255, 255, 255, 0.14));
+  background: transparent;
+  color: var(--p-primary-color, #8ab4ff);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.notif-open-job:hover {
+  background: rgba(108, 140, 255, 0.1);
+}
+
+.notif-item__meta {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--md-text-muted);
+}
+
+.muted {
+  color: var(--md-text-muted);
+  margin: 0;
 }
 
 .shell__content {
@@ -134,5 +243,38 @@
 
 .palette__hint {
   font-size: 12px;
+  color: var(--md-text-muted);
+}
+
+.palette__list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  max-height: min(360px, 50vh);
+  overflow: auto;
+}
+
+.palette__link {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--md-text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.palette__link:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.palette__path {
+  font-size: 0.8rem;
   color: var(--md-text-muted);
 }

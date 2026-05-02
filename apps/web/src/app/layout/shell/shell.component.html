@@ -34,6 +34,13 @@
     <header class="shell__topbar">
       <div class="shell__topbarTitle">Command center</div>
       <div class="shell__topbarMeta">
+        <button type="button" class="notif-btn" (click)="openNotifPanel()" aria-label="Notifications">
+          <span class="pi pi-bell" aria-hidden="true"></span>
+          @if (notifUnread() > 0) {
+            <span class="notif-badge">{{ notifUnread() > 99 ? '99+' : notifUnread() }}</span>
+          }
+        </button>
+        <span class="shell__topbarSep">·</span>
         SignalR: <span class="mono">{{ realtime.connectionState() }}</span>
       </div>
     </header>
@@ -59,7 +66,70 @@
   (onHide)="closePalette()"
 >
   <div class="palette">
-    <input pInputText type="search" placeholder="Navigate or run actions…" [value]="paletteQuery()" (input)="paletteQuery.set($any($event.target).value)" />
-    <div class="palette__hint">MVP: palette UI shell only. Actions wire in Phase 2.</div>
+    <input
+      pInputText
+      type="search"
+      placeholder="Filter pages…"
+      [value]="paletteQuery()"
+      (input)="paletteQuery.set($any($event.target).value)"
+    />
+    <ul class="palette__list">
+      @for (item of filteredNav(); track item.path) {
+        <li>
+          <button type="button" class="palette__link" (click)="go(item.path)">
+            {{ item.label }}
+            <span class="mono palette__path">{{ item.path }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  </div>
+</p-dialog>
+
+<p-dialog
+  header="Notifications"
+  [visible]="notifOpen()"
+  (visibleChange)="notifOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: 'min(520px, 92vw)' }"
+  (onHide)="closeNotifPanel()"
+>
+  <div class="notif-panel">
+    <div class="notif-panel__toolbar">
+      <button
+        pButton
+        type="button"
+        class="p-button-text p-button-sm"
+        label="Mark all read"
+        (click)="markAllNotifRead()"
+        [disabled]="notifLoading()"
+      ></button>
+    </div>
+    @if (notifLoading()) {
+      <p class="muted">Loading…</p>
+    } @else if (notifItems().length === 0) {
+      <p class="muted">No notifications.</p>
+    } @else {
+      <ul class="notif-list">
+        @for (n of notifItems(); track n.id) {
+          <li class="notif-item" [class.notif-item--unread]="!n.readAt" (click)="markNotifRead(n)">
+            <div class="notif-item__title">{{ n.title }}</div>
+            <div class="notif-item__body">{{ n.body }}</div>
+            @if (n.jobId) {
+              <button
+                type="button"
+                class="notif-open-job md-btn md-btn--ghost"
+                (click)="openJobFromNotif($event, n)"
+              >
+                Open job
+              </button>
+            }
+            <div class="notif-item__meta mono">
+              {{ n.type }} · {{ n.createdAt | date: 'short' }}
+            </div>
+          </li>
+        }
+      </ul>
+    }
   </div>
 </p-dialog>
