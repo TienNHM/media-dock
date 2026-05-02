@@ -12,4 +12,11 @@ public sealed class AcquisitionOptions
 
     /// <summary>When true and binaries are missing, probe/download use safe stubs for dev/CI.</summary>
     public bool UseStubWhenBinaryMissing { get; set; } = true;
+
+    /// <summary>
+    /// Root folder for downloads; each job writes to a subfolder named by job id (N format).
+    /// When null/empty, uses %LocalAppData%/MediaDock/downloads.
+    /// </summary>
+    public string? DownloadsRootPath { get; set; }
 }
+

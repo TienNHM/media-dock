@@ -1,5 +1,5 @@
 param(
-  [ValidateSet("api", "web", "all")]
+  [ValidateSet("api", "web", "desktop", "all")]
   [string]$Target = "all"
 )
 
@@ -26,4 +26,13 @@ if ($Target -eq "web" -or $Target -eq "all") {
   ) | Out-Null
 }
 
-Write-Host "`nDone. For Electron: npm run desktop:dev" -ForegroundColor Green
+if ($Target -eq "desktop" -or $Target -eq "all") {
+  Write-Host "`n==> Starting Electron desktop shell (new window)..." -ForegroundColor Yellow
+  Start-Process pwsh -ArgumentList @(
+    "-NoExit",
+    "-Command",
+    "Set-Location `"$(Get-Location)`"; npm run desktop:dev"
+  ) | Out-Null
+}
+
+Write-Host "`nDone." -ForegroundColor Green

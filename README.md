@@ -77,6 +77,7 @@ See also [`scripts/dev.ps1`](scripts/dev.ps1).
 ## Configuration
 
 - API SQLite + logs: `%LocalAppData%/MediaDock/`
+- **Video downloads:** each job writes under `{downloadsRoot}/{job-id}/` (see `GET /api/runtime/downloads`). Default root: `%LocalAppData%/MediaDock/downloads`. Override with `Acquisition:DownloadsRootPath` or `Acquisition__DownloadsRootPath`.
 - Runtime file for Electron discovery: `%LocalAppData%/MediaDock/sidecar-runtime.json`
 - Development auth: **no token** (see `apps/api/Program.cs`). Production should set `Sidecar__AuthToken`.
 

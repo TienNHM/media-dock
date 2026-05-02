@@ -12,6 +12,7 @@ public sealed class ProcessDownloadJobCommandHandler(
     IMediaProbe probe,
     IMediaDownloader downloader,
     IJobProgressPublisher progress,
+    IDownloadsPathResolver downloadPaths,
     ILogger<ProcessDownloadJobCommandHandler> logger) : IRequestHandler<ProcessDownloadJobCommand>
 {
     public async Task Handle(ProcessDownloadJobCommand request, CancellationToken cancellationToken)
@@ -42,8 +43,9 @@ public sealed class ProcessDownloadJobCommandHandler(
                 return;
             await jobs.SaveChangesAsync(cancellationToken);
 
-            var workDir = Path.Combine(Path.GetTempPath(), "mediadock", job.Id.ToString("N"));
+            var workDir = downloadPaths.GetJobDownloadDirectory(job.Id);
             Directory.CreateDirectory(workDir);
+            logger.LogInformation("Job {JobId} download directory: {WorkDir}", job.Id, workDir);
 
             var spec = new DownloadSpec(
                 job.Id,

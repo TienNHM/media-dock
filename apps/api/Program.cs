@@ -104,6 +104,7 @@ app.MapHealthChecks(
 app.MapGet("/health/live", () => Results.Text("OK", "text/plain"));
 
 app.MapJobsEndpoints();
+app.MapRuntimeEndpoints();
 app.MapHub<JobsHub>("/hubs/jobs");
 
 var writer = app.Services.GetRequiredService<SidecarRuntimeWriter>();
