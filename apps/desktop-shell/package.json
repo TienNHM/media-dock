@@ -2,6 +2,7 @@
   "name": "@mediadock/desktop-shell",
   "private": true,
   "version": "0.1.0",
+  "author": "MediaDock",
   "main": "src/main/main.cjs",
   "scripts": {
     "dev": "electron . --trace-warnings",

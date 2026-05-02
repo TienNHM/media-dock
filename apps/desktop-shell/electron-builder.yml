@@ -21,15 +21,23 @@ extraResources:
     to: mediadock/api
 
 win:
+  # MSI (WiX) needs a real .ico; use build/icon.ico (copy from web favicon in repo or after web:build).
+  icon: build/icon.ico
   # Unsigned artifacts: avoids winCodeSign cache extract (symlinks) failing without Developer Mode/admin.
   signAndEditExecutable: false
   target:
     - nsis
     - portable
+    - msi
 
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+
+msi:
+  oneClick: false
+  perMachine: false
   createDesktopShortcut: true
 
 mac:
