@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain, shell, nativeTheme } = require('electron');
+const fs = require('node:fs');
 const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 const { startSidecar, stopSidecar, repoRoot } = require('../sidecar/supervisor.cjs');
 
 /** @type {import('electron').BrowserWindow | undefined} */
@@ -7,6 +9,39 @@ let mainWindow;
 
 ipcMain.handle('mediadock:openExternal', async (_event, url) => {
   await shell.openExternal(String(url));
+});
+
+function assertAbsoluteFilePath(p) {
+  const s = String(p ?? '').trim();
+  if (!s || !path.isAbsolute(s)) throw new Error('Invalid path');
+  return s;
+}
+
+ipcMain.handle('mediadock:showItemInFolder', async (_event, fullPath) => {
+  const p = assertAbsoluteFilePath(fullPath);
+  shell.showItemInFolder(p);
+});
+
+ipcMain.handle('mediadock:previewVideo', async (_event, fullPath) => {
+  const p = assertAbsoluteFilePath(fullPath);
+  await fs.promises.access(p, fs.constants.R_OK);
+  const fileUrl = pathToFileURL(p).href;
+  const safeAttr = fileUrl.replace(/"/g, '&quot;');
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Preview</title></head><body style="margin:0;background:#0b0c0e;display:flex;align-items:center;justify-content:center;min-height:100vh"><video controls autoplay playsinline style="max-width:100%;max-height:100vh" src="${safeAttr}"></video></body></html>`;
+  const child = new BrowserWindow({
+    width: 1100,
+    height: 720,
+    title: path.basename(p),
+    autoHideMenuBar: true,
+    backgroundColor: '#0b0c0e',
+    webPreferences: {
+      sandbox: false,
+      webSecurity: false,
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+  await child.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
 });
 
 function createWindow() {

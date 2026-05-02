@@ -4,7 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import type { JobDetailDto, JobStatus } from '../../core/models/job.models';
+import type { JobArtifactDto, JobDetailDto, JobStatus } from '../../core/models/job.models';
+import { DesktopBridgeService } from '../../core/services/desktop-bridge.service';
 import { JobsApiService } from '../../core/services/jobs-api.service';
 
 @Component({
@@ -82,6 +83,32 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
             </p-table>
           }
         </section>
+
+        @if (j.status === 'Completed' && primaryVideo(); as vid) {
+          <div class="actions">
+            @if (desktop.isDesktopShell()) {
+              <button
+                pButton
+                type="button"
+                class="p-button-secondary"
+                label="Open folder"
+                (click)="openDownloadFolder(vid)"
+                [disabled]="busy()"
+              ></button>
+              <button
+                pButton
+                type="button"
+                label="Preview video"
+                (click)="previewVideo(vid)"
+                [disabled]="busy()"
+              ></button>
+            } @else {
+              <p class="muted desktop-hint">
+                Mở thư mục / xem nhanh: dùng bản <strong>desktop</strong> MediaDock. Trên trình duyệt, dùng đường dẫn trong bảng Artifacts.
+              </p>
+            }
+          </div>
+        }
 
         @if (canRetry(j.status)) {
           <div class="actions">
@@ -170,6 +197,15 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
       }
       .actions {
         margin-top: 18px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+      .desktop-hint {
+        margin: 0;
+        max-width: 40rem;
+        font-size: 0.9rem;
       }
     `,
   ],
@@ -178,6 +214,7 @@ export class JobDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly jobsApi = inject(JobsApiService);
+  readonly desktop = inject(DesktopBridgeService);
 
   readonly job = signal<JobDetailDto | undefined>(undefined);
   readonly error = signal<string | undefined>(undefined);
@@ -193,6 +230,29 @@ export class JobDetailPage implements OnInit {
       this.job.set(await this.jobsApi.getJob(id));
     } catch {
       this.error.set('Job not found or API unreachable.');
+    }
+  }
+
+  primaryVideo(): JobArtifactDto | null {
+    const j = this.job();
+    if (!j?.artifacts?.length) return null;
+    const v = j.artifacts.find((a) => a.kind?.toLowerCase() === 'video');
+    return v?.path ? v : null;
+  }
+
+  async openDownloadFolder(artifact: JobArtifactDto): Promise<void> {
+    try {
+      await this.desktop.showItemInFolder(artifact.path);
+    } catch (e) {
+      globalThis.alert(e instanceof Error ? e.message : 'Could not open folder');
+    }
+  }
+
+  async previewVideo(artifact: JobArtifactDto): Promise<void> {
+    try {
+      await this.desktop.previewVideo(artifact.path);
+    } catch (e) {
+      globalThis.alert(e instanceof Error ? e.message : 'Could not preview video');
     }
   }
 
