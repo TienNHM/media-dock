@@ -16,6 +16,21 @@ public static class LibraryEndpoints
                     Results.Ok(await m.Send(new ListLibraryQuery(take ?? 100), ct)))
             .WithName("ListLibrary");
 
+        g.MapGet(
+                "/{jobId:guid}/artifacts/{artifactId:guid}/preview",
+                async (Guid jobId, Guid artifactId, IMediator m, CancellationToken ct) =>
+                {
+                    var preview = await m.Send(new GetLibraryArtifactPreviewQuery(jobId, artifactId), ct);
+                    return preview is null
+                        ? Results.NotFound()
+                        : Results.File(
+                            preview.FullPath,
+                            preview.ContentType,
+                            fileDownloadName: null,
+                            enableRangeProcessing: true);
+                })
+            .WithName("LibraryArtifactPreview");
+
         return app;
     }
 }

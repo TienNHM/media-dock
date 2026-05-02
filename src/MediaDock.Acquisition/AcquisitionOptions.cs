@@ -14,7 +14,7 @@ public sealed class AcquisitionOptions
     public bool UseStubWhenBinaryMissing { get; set; } = true;
 
     /// <summary>
-    /// Root folder for downloads; each job writes to a subfolder named by job id (N format).
+    /// Root folder for downloads; all jobs write files directly here (flat layout).
     /// When null/empty, uses %LocalAppData%/MediaDock/downloads.
     /// </summary>
     public string? DownloadsRootPath { get; set; }

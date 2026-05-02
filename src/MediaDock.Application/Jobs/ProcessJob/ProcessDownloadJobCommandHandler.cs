@@ -48,9 +48,11 @@ public sealed class ProcessDownloadJobCommandHandler(
                 return;
             await jobs.SaveChangesAsync(cancellationToken);
 
-            var workDir = await downloadPaths.GetJobDownloadDirectoryAsync(job.Id, cancellationToken);
+            var workDir = await downloadPaths.GetDownloadsRootAsync(cancellationToken);
             Directory.CreateDirectory(workDir);
-            logger.LogInformation("Job {JobId} download directory: {WorkDir}", job.Id, workDir);
+            var pathsBeforeDownload = SnapshotTopLevelPaths(workDir);
+            var downloadStartedUtc = DateTime.UtcNow;
+            logger.LogInformation("Job {JobId} downloads root (flat): {WorkDir}", job.Id, workDir);
 
             var downloadSpec = new DownloadSpec(
                 job.Id,
@@ -81,7 +83,7 @@ public sealed class ProcessDownloadJobCommandHandler(
                     cancellationToken);
             }
 
-            var artifacts = BuildArtifacts(job.Id, workDir);
+            var artifacts = BuildArtifactsFromDownloadDelta(job.Id, workDir, pathsBeforeDownload, downloadStartedUtc);
             await jobs.ReplaceArtifactsAsync(job.Id, artifacts, cancellationToken);
 
             if (!await jobs.TryTransitionAsync(job.Id, JobStatus.Downloading, JobStatus.Completed, null, cancellationToken))
@@ -142,27 +144,61 @@ public sealed class ProcessDownloadJobCommandHandler(
         }
     }
 
-    private static IReadOnlyList<JobArtifact> BuildArtifacts(Guid jobId, string workDir)
+    private static HashSet<string> SnapshotTopLevelPaths(string dir)
+    {
+        var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        if (!Directory.Exists(dir))
+            return set;
+        foreach (var path in Directory.EnumerateFiles(dir, "*", SearchOption.TopDirectoryOnly))
+            set.Add(Path.GetFullPath(path));
+        return set;
+    }
+
+    /// <summary>
+    /// With a flat downloads directory, only attribute files that were created or updated during this run.
+    /// </summary>
+    private static IReadOnlyList<JobArtifact> BuildArtifactsFromDownloadDelta(
+        Guid jobId,
+        string workDir,
+        HashSet<string> pathsBeforeDownload,
+        DateTime downloadStartedUtc)
     {
         var list = new List<JobArtifact>();
         if (!Directory.Exists(workDir))
             return list;
 
+        var startedFloor = downloadStartedUtc.AddSeconds(-5);
+
         foreach (var path in Directory.EnumerateFiles(workDir, "*", SearchOption.TopDirectoryOnly))
         {
-            var name = Path.GetFileName(path);
+            var full = Path.GetFullPath(path);
+            var name = Path.GetFileName(full);
             if (name.StartsWith(".", StringComparison.Ordinal))
                 continue;
 
-            var ext = Path.GetExtension(path).ToLowerInvariant();
-            var fi = new FileInfo(path);
+            FileInfo fi;
+            try
+            {
+                fi = new FileInfo(full);
+            }
+            catch
+            {
+                continue;
+            }
+
+            var existedBefore = pathsBeforeDownload.Contains(full);
+            var touchedThisRun = fi.LastWriteTimeUtc >= startedFloor;
+            if (existedBefore && !touchedThisRun)
+                continue;
+
+            var ext = Path.GetExtension(full).ToLowerInvariant();
             list.Add(
                 new JobArtifact
                 {
                     Id = Guid.CreateVersion7(),
                     JobId = jobId,
                     Kind = MapKind(ext),
-                    Path = Path.GetFullPath(path),
+                    Path = full,
                     SizeBytes = fi.Length,
                     MimeType = GuessMime(ext)
                 });

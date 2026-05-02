@@ -24,7 +24,7 @@ export class JobsRealtimeService {
 
     this.connectionState.set('connecting');
     this.hub = new HubConnectionBuilder()
-      .withUrl(`${this.base}/hubs/jobs`)
+      .withUrl(`${this.base}/hubs/jobs`, { withCredentials: false })
       .configureLogging(LogLevel.Warning)
       .withAutomaticReconnect()
       .build();

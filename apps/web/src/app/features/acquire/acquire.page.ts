@@ -44,7 +44,7 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
           <p class="dest__warn">{{ downloadsError() }}</p>
         } @else if (downloadsRoot()) {
           <p class="dest__path mono">{{ downloadsRoot() }}</p>
-          <p class="muted dest__hint">Mỗi job có một thư mục con (theo ID job). Đổi thư mục gốc trong Settings.</p>
+          <p class="muted dest__hint">Video lưu thẳng vào thư mục gốc downloads. Đổi thư mục trong Settings.</p>
         } @else {
           <p class="muted">Đang tải thông tin…</p>
         }
@@ -238,7 +238,7 @@ export class AcquirePage implements OnInit {
     const hint =
       root ?? '%LocalAppData%\\MediaDock\\downloads (mặc định nếu API không phản hồi)';
     return globalThis.confirm(
-      `File sẽ lưu dưới thư mục gốc:\n\n${hint}\n\nMỗi job một thư mục con. Tiếp tục?`,
+      `File sẽ lưu trực tiếp vào thư mục:\n\n${hint}\n\n(Tất cả job dùng chung thư mục này.) Tiếp tục?`,
     );
   }
 

@@ -3,7 +3,7 @@ namespace MediaDock.Acquisition;
 public static class DownloadsPathHelper
 {
     /// <summary>
-    /// Resolves the root directory that contains per-job download folders (each job uses a subfolder by job id).
+    /// Resolves the downloads root directory (videos and sidecar files go directly here, no per-job subfolder).
     /// </summary>
     public static string ResolveDownloadsRoot(AcquisitionOptions options, string? persistedDatabasePath = null)
     {
@@ -20,6 +20,7 @@ public static class DownloadsPathHelper
         return Path.GetFullPath(fallback);
     }
 
-    public static string ResolveJobDownloadDirectory(AcquisitionOptions options, Guid jobId, string? persistedDatabasePath = null) =>
-        Path.Combine(ResolveDownloadsRoot(options, persistedDatabasePath), jobId.ToString("N"));
+    /// <summary>Returns the downloads root—the same path as <see cref="ResolveDownloadsRoot"/> (<paramref name="_"/> unused).</summary>
+    public static string ResolveJobDownloadDirectory(AcquisitionOptions options, Guid _, string? persistedDatabasePath = null) =>
+        ResolveDownloadsRoot(options, persistedDatabasePath);
 }

@@ -70,10 +70,12 @@ builder.Services.ConfigureHttpJsonOptions(o =>
 builder.Services.AddSignalR().AddJsonProtocol(o =>
     o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
+// SignalR negotiate uses fetch with credentials; reflect Origin + AllowCredentials (cannot use AllowAnyOrigin + credentials).
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.AllowAnyHeader()
         .AllowAnyMethod()
-        .SetIsOriginAllowed(_ => true)));
+        .SetIsOriginAllowed(_ => true)
+        .AllowCredentials()));
 
 builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();

@@ -1,7 +1,7 @@
 namespace MediaDock.Application.Ports.Acquisition;
 
 /// <summary>
-/// Resolves where completed downloads are stored (per-job subfolders under a configurable root).
+/// Resolves the configurable downloads directory; files are written directly under that root.
 /// </summary>
 public interface IDownloadsPathResolver
 {

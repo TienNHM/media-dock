@@ -13,4 +13,9 @@ export class LibraryApiService {
     const params = new HttpParams().set('take', String(take));
     return firstValueFrom(this.http.get<LibraryItemDto[]>(`${this.base}/api/library`, { params }));
   }
+
+  /** Absolute API URL to stream an artifact (Range requests supported for video seeking). */
+  previewUrl(jobId: string, artifactId: string): string {
+    return `${this.base}/api/library/${jobId}/artifacts/${artifactId}/preview`;
+  }
 }
