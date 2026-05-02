@@ -12,5 +12,5 @@ public sealed record JobSummaryDto(
     string SourcePlatform,
     JobStatus Status,
     int Priority,
-    DateTimeOffset CreatedAt,
+    DateTime CreatedAt,
     string? LastErrorMessage);

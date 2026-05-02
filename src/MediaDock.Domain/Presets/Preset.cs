@@ -1,5 +1,8 @@
 namespace MediaDock.Domain.Presets;
 
+/// <summary>
+/// Timestamps are persisted as UTC.
+/// </summary>
 public sealed class Preset
 {
     public Guid Id { get; set; }
@@ -7,6 +10,6 @@ public sealed class Preset
     public string? Description { get; set; }
     public string SpecJson { get; set; } = "{}";
     public bool IsDefault { get; set; }
-    public DateTimeOffset CreatedAt { get; set; }
-    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

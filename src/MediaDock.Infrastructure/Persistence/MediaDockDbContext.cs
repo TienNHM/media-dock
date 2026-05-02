@@ -53,6 +53,8 @@ public sealed class MediaDockDbContext(DbContextOptions<MediaDockDbContext> opti
             e.HasKey(x => new { x.Key, x.Scope });
         });
         modelBuilder.Entity<InAppNotification>(e => e.HasKey(x => x.Id));
+
+        UtcDateTimeConverters.Apply(modelBuilder);
     }
 
     public static void ConfigureSqlite(DbContextOptionsBuilder options, string connectionString)

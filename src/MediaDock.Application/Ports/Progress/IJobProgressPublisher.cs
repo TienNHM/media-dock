@@ -6,7 +6,7 @@ public sealed record JobProgressDto(
     double? Percent,
     long? BytesDone,
     long? BytesTotal,
-    DateTimeOffset Timestamp);
+    DateTime Timestamp);
 
 public interface IJobProgressPublisher
 {

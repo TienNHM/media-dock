@@ -35,7 +35,7 @@ public sealed class ProcessDownloadJobCommandHandler(
         {
             var probeResult = await probe.ProbeAsync(job.Url, cancellationToken);
             await progress.PublishAsync(
-                new JobProgressDto(job.Id, "probed", null, null, null, DateTimeOffset.UtcNow),
+                new JobProgressDto(job.Id, "probed", null, null, null, DateTime.UtcNow),
                 cancellationToken);
 
             if (!await jobs.TryTransitionAsync(job.Id, JobStatus.Probing, JobStatus.Downloading, null, cancellationToken))
@@ -64,14 +64,14 @@ public sealed class ProcessDownloadJobCommandHandler(
                         ev.Percent,
                         ev.BytesDone,
                         ev.BytesTotal,
-                        DateTimeOffset.UtcNow),
+                        DateTime.UtcNow),
                     cancellationToken);
             }
 
             if (!await jobs.TryTransitionAsync(job.Id, JobStatus.Downloading, JobStatus.Completed, null, cancellationToken))
                 return;
 
-            job.CompletedAt = DateTimeOffset.UtcNow;
+            job.CompletedAt = DateTime.UtcNow;
             await jobs.SaveChangesAsync(cancellationToken);
         }
         catch (OperationCanceledException)

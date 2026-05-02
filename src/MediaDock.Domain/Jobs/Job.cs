@@ -1,5 +1,8 @@
 namespace MediaDock.Domain.Jobs;
 
+/// <summary>
+/// Persisted timestamps are <b>UTC</b> (<see cref="DateTimeKind.Utc"/>).
+/// </summary>
 public sealed class Job
 {
     public Guid Id { get; set; }
@@ -10,14 +13,14 @@ public sealed class Job
     public JobStatus Status { get; set; } = JobStatus.Draft;
     public int Priority { get; set; }
     public Guid? PresetId { get; set; }
-    public DateTimeOffset? ScheduledAt { get; set; }
+    public DateTime? ScheduledAt { get; set; }
     public int Attempt { get; set; }
     public string? LastErrorClass { get; set; }
     public string? LastErrorMessage { get; set; }
     public string CorrelationId { get; set; } = string.Empty;
-    public DateTimeOffset CreatedAt { get; set; }
-    public DateTimeOffset? StartedAt { get; set; }
-    public DateTimeOffset? CompletedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? StartedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
 
     public JobSpec? CurrentSpec { get; set; }
     public JobProgress? Progress { get; set; }

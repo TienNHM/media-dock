@@ -22,6 +22,7 @@ public sealed class EfJobRepository(MediaDockDbContext db) : IJobRepository
         var q = db.Jobs.AsNoTracking().AsQueryable();
         if (status.HasValue)
             q = q.Where(j => j.Status == status.Value);
+
         return await q
             .OrderByDescending(j => j.CreatedAt)
             .Take(take)
@@ -53,9 +54,9 @@ public sealed class EfJobRepository(MediaDockDbContext db) : IJobRepository
         }
 
         if (to == JobStatus.Downloading || to == JobStatus.Probing)
-            job.StartedAt ??= DateTimeOffset.UtcNow;
+            job.StartedAt ??= DateTime.UtcNow;
         if (to == JobStatus.Completed || to == JobStatus.Cancelled || to == JobStatus.FailedPermanent)
-            job.CompletedAt = DateTimeOffset.UtcNow;
+            job.CompletedAt = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
         await tx.CommitAsync(cancellationToken);
@@ -78,7 +79,7 @@ public sealed class EfJobRepository(MediaDockDbContext db) : IJobRepository
         if (!string.IsNullOrEmpty(errorClass))
             job.LastErrorClass = errorClass;
         if (to is JobStatus.Completed or JobStatus.Cancelled or JobStatus.FailedPermanent or JobStatus.Failed)
-            job.CompletedAt = DateTimeOffset.UtcNow;
+            job.CompletedAt = DateTime.UtcNow;
         await db.SaveChangesAsync(cancellationToken);
     }
 }

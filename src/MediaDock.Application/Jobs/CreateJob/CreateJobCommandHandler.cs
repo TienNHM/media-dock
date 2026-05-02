@@ -25,10 +25,10 @@ public sealed class CreateJobCommandHandler(
             Status = JobStatus.Pending,
             Priority = request.Priority,
             PresetId = request.PresetId,
-            ScheduledAt = DateTimeOffset.UtcNow,
+            ScheduledAt = DateTime.UtcNow,
             Attempt = 1,
             CorrelationId = correlationId,
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             LineageRootId = id,
             CurrentSpec = new JobSpec
             {

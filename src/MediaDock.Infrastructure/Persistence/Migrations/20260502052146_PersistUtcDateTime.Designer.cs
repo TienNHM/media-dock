@@ -3,6 +3,7 @@ using System;
 using MediaDock.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MediaDock.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(MediaDockDbContext))]
-    partial class MediaDockDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260502052146_PersistUtcDateTime")]
+    partial class PersistUtcDateTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
