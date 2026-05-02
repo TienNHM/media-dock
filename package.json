@@ -12,6 +12,10 @@
     "web:dev": "npm --workspace web run start",
     "web:build": "npm --workspace web run build",
     "desktop:dev": "npm --workspace @mediadock/desktop-shell run dev",
-    "desktop:build": "npm --workspace @mediadock/desktop-shell run build"
+    "desktop:build": "npm --workspace @mediadock/desktop-shell run build",
+    "desktop:bundle": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop.ps1 -SkipElectron",
+    "release:desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop.ps1",
+    "release:desktop:no-binaries": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop.ps1 -SkipBinariesFetch",
+    "release:desktop:matrix": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop-matrix.ps1"
   }
 }

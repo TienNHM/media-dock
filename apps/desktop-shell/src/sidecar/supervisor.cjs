@@ -3,13 +3,14 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const net = require('node:net');
+const { monorepoRoot, publishedApiExe } = require('./content-paths.cjs');
 
 /** @type {import('node:child_process').ChildProcess | undefined} */
 let sidecarProc;
 
+/** @deprecated Use monorepoRoot() — kept for main process imports that expect repo paths in dev */
 function repoRoot() {
-  // apps/desktop-shell/src/sidecar -> ../../../../ (repo root)
-  return path.resolve(__dirname, '../../../../');
+  return monorepoRoot();
 }
 
 function dotnetPath() {
@@ -63,19 +64,25 @@ async function startSidecar() {
     return;
   }
 
-  const apiProject = path.join(repoRoot(), 'apps', 'api', 'MediaDock.Api.csproj');
-  if (!fs.existsSync(apiProject)) {
-    // eslint-disable-next-line no-console
-    console.warn('[MediaDock] API project not found; skipping sidecar spawn:', apiProject);
-    return;
-  }
-
   const apiHost = process.env.MEDIADOCK_API_HOST || '127.0.0.1';
   const apiPort = parseInt(process.env.MEDIADOCK_API_PORT || '17888', 10) || 17888;
   const listenUrl = `http://${apiHost}:${apiPort}`;
   const liveUrl = `${listenUrl}/health/live`;
 
-  // Avoid a second `dotnet run` when dev.ps1 or another terminal already started the API (same port).
+  const published = publishedApiExe();
+  const apiProject = path.join(monorepoRoot(), 'apps', 'api', 'MediaDock.Api.csproj');
+
+  const canDevRun = fs.existsSync(apiProject);
+
+  if (!published && !canDevRun) {
+    // eslint-disable-next-line no-console
+    console.warn('[MediaDock] Neither published API nor project found; skipping sidecar spawn.', {
+      apiProject,
+    });
+    return;
+  }
+
+  // Avoid spawning when an API already answers on this URL.
   if (await pingHealth(liveUrl)) {
     // eslint-disable-next-line no-console
     console.warn(`[MediaDock] API already healthy at ${liveUrl}; skipping sidecar spawn.`);
@@ -91,15 +98,35 @@ async function startSidecar() {
     return;
   }
 
-  sidecarProc = spawn(dotnetPath(), ['run', '--project', apiProject, '--configuration', 'Debug'], {
-    cwd: repoRoot(),
-    stdio: 'inherit',
-    env: {
-      ...process.env,
-      ASPNETCORE_ENVIRONMENT: 'Development',
-      ASPNETCORE_URLS: listenUrl,
-    },
-  });
+  const envAsp = published
+    ? (process.env.ASPNETCORE_ENVIRONMENT ?? 'Production')
+    : (process.env.ASPNETCORE_ENVIRONMENT ?? 'Development');
+
+  if (published) {
+    const apiDir = path.dirname(published);
+    sidecarProc = spawn(published, [], {
+      cwd: apiDir,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        ASPNETCORE_ENVIRONMENT: envAsp,
+        ASPNETCORE_URLS: listenUrl,
+        DOTNET_EnableDiagnostics: '0',
+      },
+    });
+    // eslint-disable-next-line no-console
+    console.warn('[MediaDock] Starting bundled API:', published);
+  } else {
+    sidecarProc = spawn(dotnetPath(), ['run', '--project', apiProject, '--configuration', 'Debug'], {
+      cwd: monorepoRoot(),
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        ASPNETCORE_ENVIRONMENT: envAsp,
+        ASPNETCORE_URLS: listenUrl,
+      },
+    });
+  }
 
   sidecarProc.on('exit', (code, signal) => {
     // eslint-disable-next-line no-console
@@ -107,7 +134,7 @@ async function startSidecar() {
     sidecarProc = undefined;
   });
 
-  await waitForLive(liveUrl, 60_000);
+  await waitForLive(liveUrl, 120_000);
 }
 
 async function stopSidecar() {

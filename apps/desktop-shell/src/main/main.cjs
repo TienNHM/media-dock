@@ -2,7 +2,8 @@ const { app, BrowserWindow, ipcMain, shell, nativeTheme } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
-const { startSidecar, stopSidecar, repoRoot } = require('../sidecar/supervisor.cjs');
+const { startSidecar, stopSidecar } = require('../sidecar/supervisor.cjs');
+const { spaIndexHtml } = require('../sidecar/content-paths.cjs');
 const {
   coerceLang,
   setApplicationMenuFromLocale,
@@ -108,8 +109,7 @@ function createWindow() {
     });
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
-    const indexHtml = path.join(repoRoot(), 'apps', 'web', 'dist', 'web', 'browser', 'index.html');
-    void mainWindow.loadFile(indexHtml);
+    void mainWindow.loadFile(spaIndexHtml());
   }
 
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {

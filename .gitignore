@@ -24,9 +24,12 @@ obj/
 *.db-wal
 **/appsettings.*.local.json
 
-# Electron
+# Electron / desktop-shell build outputs
 apps/desktop-shell/out/
 apps/desktop-shell/dist/
+apps/desktop-shell/bundle-dist/
+apps/desktop-shell/release-out/
+apps/desktop-shell/release-*/
 
 # Binaries (fetched in CI / scripts/fetch-binaries.ps1)
 apps/desktop-shell/resources/binaries/**/*

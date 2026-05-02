@@ -1,7 +1,43 @@
 appId: com.mediadock.desktop
 productName: MediaDock
+copyright: Copyright © MediaDock
+
+# Electron is hoisted to repo root node_modules; pin so builder resolves without workspace-local electron.
+electronVersion: 35.7.5
+
 directories:
-  output: out
+  output: release-out
+
+asar: true
+
 files:
   - src/**/*
   - package.json
+
+extraResources:
+  - from: bundle-dist/web
+    to: mediadock/web
+  - from: bundle-dist/api
+    to: mediadock/api
+
+win:
+  # Unsigned artifacts: avoids winCodeSign cache extract (symlinks) failing without Developer Mode/admin.
+  signAndEditExecutable: false
+  target:
+    - nsis
+    - portable
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+
+mac:
+  target:
+    - dmg
+  category: public.app-category.utilities
+
+linux:
+  target:
+    - AppImage
+  category: Utility

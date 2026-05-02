@@ -5,10 +5,12 @@
   "main": "src/main/main.cjs",
   "scripts": {
     "dev": "electron . --trace-warnings",
-    "build": "electron-builder --dir"
+    "build": "electron-builder --dir",
+    "release": "electron-builder --win --x64 --publish never",
+    "release:unpack": "electron-builder --dir"
   },
   "devDependencies": {
-    "electron": "^35.1.5",
+    "electron": "35.7.5",
     "electron-builder": "^26.0.12"
   }
 }
