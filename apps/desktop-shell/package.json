@@ -1,0 +1,14 @@
+{
+  "name": "@mediadock/desktop-shell",
+  "private": true,
+  "version": "0.1.0",
+  "main": "src/main/main.cjs",
+  "scripts": {
+    "dev": "electron . --trace-warnings",
+    "build": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^35.1.5",
+    "electron-builder": "^26.0.12"
+  }
+}

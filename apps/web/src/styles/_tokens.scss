@@ -1,0 +1,20 @@
+:root {
+  --md-surface-0: #0b0c0e;
+  --md-surface-1: #12141a;
+  --md-surface-2: #1a1d26;
+  --md-border: #2a2f3d;
+  --md-text: #e8eaef;
+  --md-text-muted: #9aa3b2;
+  --md-accent: #6c8cff;
+  --md-radius: 10px;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--md-surface-0);
+  color: var(--md-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+}

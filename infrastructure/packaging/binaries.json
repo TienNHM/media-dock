@@ -1,0 +1,14 @@
+{
+  "ytDlp": {
+    "version": "pinned-in-ci",
+    "windows": { "url": "", "sha256": "" },
+    "macos": { "url": "", "sha256": "" },
+    "linux": { "url": "", "sha256": "" }
+  },
+  "ffmpeg": {
+    "version": "pinned-in-ci",
+    "windows": { "url": "", "sha256": "" },
+    "macos": { "url": "", "sha256": "" },
+    "linux": { "url": "", "sha256": "" }
+  }
+}

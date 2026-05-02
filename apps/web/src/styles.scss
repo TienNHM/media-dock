@@ -1,0 +1,22 @@
+@use "styles/tokens";
+@import "primeicons/primeicons.css";
+
+.md-btn {
+  border: 1px solid var(--md-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--md-text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.md-btn--ghost {
+  background: transparent;
+}
+
+.md-btn:hover {
+  border-color: rgba(108, 140, 255, 0.35);
+}

@@ -1,0 +1,7 @@
+appId: com.mediadock.desktop
+productName: MediaDock
+directories:
+  output: out
+files:
+  - src/**/*
+  - package.json

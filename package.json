@@ -1,0 +1,16 @@
+{
+  "name": "media-dock",
+  "private": true,
+  "packageManager": "npm@10.9.2",
+  "workspaces": [
+    "apps/web",
+    "apps/desktop-shell",
+    "packages/*"
+  ],
+  "scripts": {
+    "web:dev": "npm --workspace web run start",
+    "web:build": "npm --workspace web run build",
+    "desktop:dev": "npm --workspace @mediadock/desktop-shell run dev",
+    "desktop:build": "npm --workspace @mediadock/desktop-shell run build"
+  }
+}

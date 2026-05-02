@@ -1,0 +1,65 @@
+<div class="shell">
+  <aside class="shell__sidebar">
+    <div class="shell__brand">
+      <div class="shell__logo">MD</div>
+      <div>
+        <div class="shell__title">MediaDock</div>
+        <div class="shell__subtitle">Acquisition Platform</div>
+      </div>
+    </div>
+
+    <nav class="shell__nav">
+      @for (item of nav; track item.path) {
+        <a
+          class="shell__navItem"
+          [routerLink]="item.path"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+        >
+          {{ item.label }}
+        </a>
+      }
+    </nav>
+
+    <div class="shell__sidebarFooter">
+      <button type="button" class="md-btn md-btn--ghost" (click)="paletteOpen.set(true)">
+        <span class="pi pi-search" aria-hidden="true"></span>
+        Command palette
+      </button>
+      <div class="shell__hint">Ctrl+K</div>
+    </div>
+  </aside>
+
+  <div class="shell__main">
+    <header class="shell__topbar">
+      <div class="shell__topbarTitle">Command center</div>
+      <div class="shell__topbarMeta">
+        SignalR: <span class="mono">{{ realtime.connectionState() }}</span>
+      </div>
+    </header>
+
+    <main class="shell__content">
+      <router-outlet />
+    </main>
+
+    <footer class="shell__statusbar">
+      <span>Sidecar: {{ realtime.connectionState() }}</span>
+      <span class="shell__spacer"></span>
+      <span class="mono">v0.1.0-mvp</span>
+    </footer>
+  </div>
+</div>
+
+<p-dialog
+  header="Command palette"
+  [visible]="paletteOpen()"
+  (visibleChange)="paletteOpen.set($event)"
+  [modal]="true"
+  [style]="{ width: 'min(720px, 92vw)' }"
+  (onHide)="closePalette()"
+>
+  <div class="palette">
+    <input pInputText type="search" placeholder="Navigate or run actions…" [value]="paletteQuery()" (input)="paletteQuery.set($any($event.target).value)" />
+    <div class="palette__hint">MVP: palette UI shell only. Actions wire in Phase 2.</div>
+  </div>
+</p-dialog>

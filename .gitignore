@@ -1,0 +1,41 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vs/
+*.user
+*.suo
+
+# Node
+node_modules/
+dist/
+.angular/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# .NET
+bin/
+obj/
+*.db
+*.db-shm
+*.db-wal
+**/appsettings.*.local.json
+
+# Electron
+apps/desktop-shell/out/
+apps/desktop-shell/dist/
+
+# Binaries (fetched in CI)
+apps/desktop-shell/resources/binaries/**/*
+!apps/desktop-shell/resources/binaries/.gitkeep
+
+# Secrets
+*.pfx
+.env
+.env.*
+
+# Nx
+.nx/cache
