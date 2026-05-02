@@ -7,6 +7,7 @@ declare global {
       openExternal?: (url: string) => Promise<void>;
       showItemInFolder?: (fullPath: string) => Promise<void>;
       previewVideo?: (fullPath: string) => Promise<void>;
+      setMenuLocale?: (lang: 'en' | 'vi') => Promise<void>;
     };
   }
 }

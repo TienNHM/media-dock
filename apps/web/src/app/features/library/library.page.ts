@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import type { LibraryItemDto } from '../../core/models/job.models';
@@ -12,14 +13,14 @@ import { LibraryApiService } from '../../core/services/library-api.service';
 @Component({
   standalone: true,
   selector: 'app-library-page',
-  imports: [CommonModule, RouterLink, ButtonModule, TooltipModule],
+  imports: [CommonModule, TranslateModule, RouterLink, ButtonModule, TooltipModule],
   template: `
     <div class="page library">
       <header class="library__masthead">
         <div class="library__intro">
-          <h1>Library</h1>
+          <h1>{{ 'library.title' | translate }}</h1>
           <p class="library__subtitle">
-            Finished downloads — inline preview streams from your sidecar (<code>/api/library/…/preview</code>).
+            {{ 'library.subtitle' | translate }}
           </p>
         </div>
         <button
@@ -27,8 +28,8 @@ import { LibraryApiService } from '../../core/services/library-api.service';
           type="button"
           icon="pi pi-refresh"
           class="p-button-outlined p-button-rounded"
-          [pTooltip]="'Refresh library'"
-          [attr.aria-label]="'Refresh library'"
+          [pTooltip]="'library.refreshLibrary' | translate"
+          [attr.aria-label]="'library.refreshLibrary' | translate"
           (click)="load()"
           [loading]="loading()"
         ></button>
@@ -41,12 +42,12 @@ import { LibraryApiService } from '../../core/services/library-api.service';
       @if (!loading() && !items().length && !error()) {
         <div class="library__empty">
           <span class="pi pi-inbox library__empty-icon" aria-hidden="true"></span>
-          <p class="library__empty-title">No completed items yet</p>
-          <p class="library__empty-hint muted">Enqueue a URL from Acquire, then return here.</p>
+          <p class="library__empty-title">{{ 'library.emptyTitle' | translate }}</p>
+          <p class="library__empty-hint muted">{{ 'library.emptyHint' | translate }}</p>
         </div>
       }
 
-      <div class="library__grid" role="feed" aria-label="Library items">
+      <div class="library__grid" role="feed" [attr.aria-label]="'library.feedAria' | translate">
         @for (item of items(); track item.jobId) {
           @let vid = primaryVideo(item);
           <article class="lib-card">
@@ -95,7 +96,7 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                   class="lib-card__plat pi md-job-ico md-job-ico--neutral"
                   [ngClass]="jobPlatformIconClasses(item.sourcePlatform)"
                   [pTooltip]="item.sourcePlatform"
-                  [attr.aria-label]="'Platform: ' + item.sourcePlatform"
+                  [attr.aria-label]="'common.platformWith' | translate: { value: item.sourcePlatform }"
                 ></i>
                 <span class="lib-card__date">{{ item.completedAt | date: 'medium' }}</span>
                 @if (vid && vid.sizeBytes != null) {
@@ -110,8 +111,8 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                   class="p-button-text p-button-sm p-button-rounded"
                   [routerLink]="['/jobs', item.jobId]"
                   icon="pi pi-link"
-                  [pTooltip]="'Open job'"
-                  [attr.aria-label]="'Open job'"
+                  [pTooltip]="'common.openJob' | translate"
+                  [attr.aria-label]="'common.openJob' | translate"
                 ></button>
                 <a
                   pButton
@@ -121,8 +122,8 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                   target="_blank"
                   rel="noopener noreferrer"
                   icon="pi pi-external-link"
-                  [pTooltip]="'Open source URL'"
-                  [attr.aria-label]="'Open source URL'"
+                  [pTooltip]="'library.openSourceUrl' | translate"
+                  [attr.aria-label]="'library.openSourceUrl' | translate"
                 ></a>
                 @if (vid && desktop.isDesktopShell()) {
                   <button
@@ -130,8 +131,8 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                     type="button"
                     class="p-button-text p-button-sm p-button-rounded"
                     icon="pi pi-folder-open"
-                    [pTooltip]="'Show in folder'"
-                    [attr.aria-label]="'Show in folder'"
+                    [pTooltip]="'library.showInFolder' | translate"
+                    [attr.aria-label]="'library.showInFolder' | translate"
                     (click)="openFolder(vid.path)"
                   ></button>
                   <button
@@ -139,8 +140,8 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                     type="button"
                     class="p-button-text p-button-sm p-button-rounded"
                     icon="pi pi-play"
-                    [pTooltip]="'Preview locally'"
-                    [attr.aria-label]="'Preview video locally'"
+                    [pTooltip]="'library.previewLocal' | translate"
+                    [attr.aria-label]="'jobDetail.previewVideoAria' | translate"
                     (click)="previewLocal(vid.path)"
                   ></button>
                 }
@@ -152,7 +153,7 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                     icon="pi pi-copy"
                     [pTooltip]="copyHint(item.jobId)"
                     tooltipPosition="left"
-                    [attr.aria-label]="'Copy file path'"
+                    [attr.aria-label]="'library.copyPath' | translate"
                     (click)="copyPath(item.jobId, primary.path)"
                   ></button>
                 }
@@ -162,8 +163,8 @@ import { LibraryApiService } from '../../core/services/library-api.service';
                   class="p-button-text p-button-sm p-button-danger ml-auto p-button-rounded"
                   icon="pi pi-trash"
                   severity="danger"
-                  [pTooltip]="'Remove from library'"
-                  [attr.aria-label]="'Remove from library'"
+                  [pTooltip]="'library.removeLibrary' | translate"
+                  [attr.aria-label]="'library.removeLibrary' | translate"
                   [loading]="removingJobId() === item.jobId"
                   [disabled]="removingJobId() !== null"
                   (click)="confirmRemove(item)"
@@ -172,7 +173,7 @@ import { LibraryApiService } from '../../core/services/library-api.service';
 
               @if (item.files.length) {
                 <details class="lib-card__technical">
-                  <summary>Paths & extras ({{ item.files.length }})</summary>
+                  <summary>{{ 'library.pathsExtras' | translate: { count: item.files.length } }}</summary>
                   <ul class="lib-files">
                     @for (f of item.files; track f.id) {
                       <li>
@@ -398,6 +399,7 @@ export class LibraryPage implements OnInit {
   readonly jobPlatformIconClasses = jobPlatformIconClasses;
   readonly api = inject(LibraryApiService);
   readonly desktop = inject(DesktopBridgeService);
+  private readonly translate = inject(TranslateService);
 
   readonly items = signal<LibraryItemDto[]>([]);
   readonly error = signal<string | undefined>(undefined);
@@ -500,7 +502,7 @@ export class LibraryPage implements OnInit {
       this.copyFlash.set(jobId);
       globalThis.setTimeout(() => this.copyFlash.update((x) => (x === jobId ? null : x)), 1400);
     } catch {
-      globalThis.prompt('Copy path:', path);
+      globalThis.prompt(this.translate.instant('common.copyPathPrompt'), path);
     }
   }
 
@@ -510,11 +512,7 @@ export class LibraryPage implements OnInit {
   }
 
   async confirmRemove(item: LibraryItemDto): Promise<void> {
-    if (
-      !globalThis.confirm(
-        'Remove this download from Library? Listed files under your downloads folder will be deleted, and history for this job is removed.',
-      )
-    ) {
+    if (!globalThis.confirm(this.translate.instant('library.removeConfirm'))) {
       return;
     }
 
@@ -529,17 +527,19 @@ export class LibraryPage implements OnInit {
       this.items.update((list) => list.filter((i) => i.jobId !== item.jobId));
     } catch (e: unknown) {
       if (e instanceof HttpErrorResponse && e.status === 404) {
-        this.error.set('That download is missing or cannot be removed from Library (completed jobs only).');
+        this.error.set(this.translate.instant('library.remove404'));
       } else if (e instanceof HttpErrorResponse) {
         const detail =
           typeof e.error === 'object' && e.error !== null && 'title' in e.error && typeof e.error.title === 'string'
             ? e.error.title
             : e.message;
-        this.error.set(detail.trim() ? detail : `Remove failed (HTTP ${e.status}).`);
+        this.error.set(
+          detail.trim() ? detail : this.translate.instant('library.removeFailedHttp', { status: e.status }),
+        );
       } else if (e instanceof Error) {
         this.error.set(e.message);
       } else {
-        this.error.set('Remove failed.');
+        this.error.set(this.translate.instant('library.removeFailed'));
       }
     } finally {
       this.removingJobId.set(null);
@@ -553,7 +553,9 @@ export class LibraryPage implements OnInit {
     try {
       this.items.set(await this.api.list(200));
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Failed to load library');
+      this.error.set(
+        e instanceof Error ? e.message : this.translate.instant('library.loadFailed'),
+      );
     } finally {
       this.loading.set(false);
     }

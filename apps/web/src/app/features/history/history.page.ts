@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
@@ -11,28 +12,43 @@ import type { JobStatus, JobSummaryDto } from '../../core/models/job.models';
 @Component({
   standalone: true,
   selector: 'app-history-page',
-  imports: [CommonModule, RouterLink, ButtonModule, TableModule, TooltipModule],
+  imports: [CommonModule, TranslateModule, RouterLink, ButtonModule, TableModule, TooltipModule],
   template: `
     <div class="page">
-      <h1>History</h1>
-      <p class="muted">Completed, failed, and cancelled jobs.</p>
+      <h1>{{ 'history.title' | translate }}</h1>
+      <p class="muted">{{ 'history.subtitle' | translate }}</p>
 
       <p-table [value]="jobs()" [tableStyle]="{ 'min-width': '50rem' }" [scrollable]="true" scrollHeight="560px">
         <ng-template pTemplate="header">
           <tr>
             <th scope="col" class="col-icon">
-              <span class="sr-only">Status</span>
-              <i class="pi pi-flag" aria-hidden="true" pTooltip="Status" tooltipPosition="bottom"></i>
+              <span class="sr-only">{{ 'common.status' | translate }}</span>
+              <i
+                class="pi pi-flag"
+                aria-hidden="true"
+                [pTooltip]="'common.status' | translate"
+                tooltipPosition="bottom"
+              ></i>
             </th>
             <th scope="col" class="col-icon">
-              <span class="sr-only">Platform</span>
-              <i class="pi pi-desktop" aria-hidden="true" pTooltip="Platform" tooltipPosition="bottom"></i>
+              <span class="sr-only">{{ 'common.platform' | translate }}</span>
+              <i
+                class="pi pi-desktop"
+                aria-hidden="true"
+                [pTooltip]="'common.platform' | translate"
+                tooltipPosition="bottom"
+              ></i>
             </th>
-            <th scope="col">URL</th>
-            <th scope="col">Completed</th>
+            <th scope="col">{{ 'common.url' | translate }}</th>
+            <th scope="col">{{ 'common.completed' | translate }}</th>
             <th scope="col" class="col-actions">
-              <span class="sr-only">Actions</span>
-              <i class="pi pi-bolt" aria-hidden="true" pTooltip="Actions" tooltipPosition="bottom"></i>
+              <span class="sr-only">{{ 'common.actions' | translate }}</span>
+              <i
+                class="pi pi-bolt"
+                aria-hidden="true"
+                [pTooltip]="'common.actions' | translate"
+                tooltipPosition="bottom"
+              ></i>
             </th>
           </tr>
         </ng-template>
@@ -43,7 +59,7 @@ import type { JobStatus, JobSummaryDto } from '../../core/models/job.models';
                 [ngClass]="jobStatusDisplayClasses(job.status)"
                 [pTooltip]="job.status"
                 tooltipPosition="top"
-                [attr.aria-label]="'Status: ' + job.status"
+                [attr.aria-label]="'common.statusWith' | translate: { value: job.status }"
               ></i>
             </td>
             <td class="col-icon">
@@ -52,7 +68,7 @@ import type { JobStatus, JobSummaryDto } from '../../core/models/job.models';
                 [ngClass]="jobPlatformIconClasses(job.sourcePlatform)"
                 [pTooltip]="job.sourcePlatform"
                 tooltipPosition="top"
-                [attr.aria-label]="'Platform: ' + job.sourcePlatform"
+                [attr.aria-label]="'common.platformWith' | translate: { value: job.sourcePlatform }"
               ></i>
             </td>
             <td class="mono url">{{ job.url }}</td>
@@ -63,8 +79,8 @@ import type { JobStatus, JobSummaryDto } from '../../core/models/job.models';
                 [routerLink]="['/jobs', job.id]"
                 icon="pi pi-eye"
                 class="p-button-text p-button-rounded p-button-sm"
-                [pTooltip]="'Open job'"
-                [attr.aria-label]="'Open job details'"
+                [pTooltip]="'history.openJob' | translate"
+                [attr.aria-label]="'queue.openJobDetails' | translate"
               ></a>
               @if (canRetry(job.status)) {
                 <button
@@ -72,8 +88,8 @@ import type { JobStatus, JobSummaryDto } from '../../core/models/job.models';
                   type="button"
                   icon="pi pi-replay"
                   class="p-button-text p-button-rounded p-button-sm p-button-success"
-                  [pTooltip]="'Retry — new job from this URL'"
-                  [attr.aria-label]="'Retry job'"
+                  [pTooltip]="'history.retryTooltip' | translate"
+                  [attr.aria-label]="'history.retryAria' | translate"
                   (click)="retry(job.id)"
                 ></button>
               }
@@ -132,6 +148,7 @@ import type { JobStatus, JobSummaryDto } from '../../core/models/job.models';
 export class HistoryPage implements OnInit {
   private readonly jobsApi = inject(JobsApiService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly jobStatusDisplayClasses = jobStatusDisplayClasses;
   readonly jobPlatformIconClasses = jobPlatformIconClasses;
@@ -164,7 +181,7 @@ export class HistoryPage implements OnInit {
   }
 
   async retry(id: string): Promise<void> {
-    if (!globalThis.confirm('Create a new job from this one?')) return;
+    if (!globalThis.confirm(this.translate.instant('history.retryConfirm'))) return;
     try {
       const r = await this.jobsApi.retryJob(id);
       await this.loadJobs();

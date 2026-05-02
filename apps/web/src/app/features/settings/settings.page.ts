@@ -1,43 +1,61 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
+import { LocaleService } from '../../core/services/locale.service';
 import { RuntimeApiService } from '../../core/services/runtime-api.service';
 
 @Component({
   standalone: true,
   selector: 'app-settings-page',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TooltipModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ButtonModule, InputTextModule, TooltipModule],
   template: `
     <div class="page">
-      <h1>Settings</h1>
-      <p class="muted">Một phần tùy chọn vẫn cấu hình qua API (appsettings / biến môi trường).</p>
+      <h1>{{ 'settings.title' | translate }}</h1>
+      <p class="muted">{{ 'settings.subtitle' | translate }}</p>
 
       <section class="block">
-        <h2>Thư mục tải xuống</h2>
+        <h2>{{ 'settings.language' | translate }}</h2>
+        <div class="form lang-row">
+          <select
+            class="lang-select"
+            [ngModel]="locale.lang()"
+            (ngModelChange)="locale.use($event)"
+          >
+            <option [ngValue]="'en'">{{ 'settings.langEn' | translate }}</option>
+            <option [ngValue]="'vi'">{{ 'settings.langVi' | translate }}</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="block">
+        <h2>{{ 'settings.downloadsSection' | translate }}</h2>
         @if (downloadsError()) {
           <p class="warn">{{ downloadsError() }}</p>
         } @else if (loaded()) {
-          <p class="mono path resolved"><strong>Đang dùng:</strong> {{ downloadsRoot() }}</p>
+          <p class="mono path resolved">
+            <strong>{{ 'settings.inUse' | translate }}</strong> {{ downloadsRoot() }}
+          </p>
           <p class="muted meta">
-            Nguồn hiện tại: <code>{{ source() }}</code>
+            {{ 'settings.currentSource' | translate }} <code>{{ source() }}</code>
             @if (configuredPath()) {
-              · Cấu hình file: <span class="mono">{{ configuredPath() }}</span>
+              · {{ 'settings.metaConfigFile' | translate }} <span class="mono">{{ configuredPath() }}</span>
             }
             @if (databasePath()) {
-              · Ghi đè DB: <span class="mono">{{ databasePath() }}</span>
+              · {{ 'settings.metaDbOverride' | translate }} <span class="mono">{{ databasePath() }}</span>
             }
           </p>
 
           <div class="form">
-            <label class="lbl">Ghi đè qua cơ sở dữ liệu (ưu tiên sau cấu hình file)</label>
+            <label class="lbl">{{ 'settings.dbOverrideLabel' | translate }}</label>
             <input
               pInputText
               type="text"
               class="inp"
-              placeholder="Để trống = xóa ghi đè, dùng mặc định / config"
+              [placeholder]="'settings.dbOverridePlaceholder' | translate"
               [(ngModel)]="editPath"
               [disabled]="saveBusy()"
             />
@@ -46,8 +64,8 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
                 pButton
                 type="button"
                 icon="pi pi-file-check"
-                label="Lưu ghi đè"
-                [pTooltip]="'Lưu đường dẫn ghi đè vào DB'"
+                [label]="'settings.saveOverride' | translate"
+                [pTooltip]="'settings.saveOverrideTooltip' | translate"
                 (click)="savePath()"
                 [disabled]="saveBusy()"
               ></button>
@@ -56,8 +74,8 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
                 type="button"
                 class="p-button-secondary"
                 icon="pi pi-trash"
-                label="Xóa ghi đè DB"
-                [pTooltip]="'Xóa ghi đè — dùng mặc định / config'"
+                [label]="'settings.clearDbOverride' | translate"
+                [pTooltip]="'settings.clearDbOverrideTooltip' | translate"
                 (click)="clearDbOverride()"
                 [disabled]="saveBusy()"
               ></button>
@@ -65,14 +83,13 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
           </div>
 
           <p class="hint">
-            Thứ tự áp dụng: <code>Acquisition:DownloadsRootPath</code> (config) → ghi đè trong DB → mặc định
-            %LocalAppData%\MediaDock\downloads. Đổi config cần khởi động lại API.
+            {{ 'settings.hintOrder' | translate: { configKey: ('settings.configKey' | translate) } }}
           </p>
           @if (saveMessage()) {
             <p class="msg">{{ saveMessage() }}</p>
           }
         } @else {
-          <p class="muted">Đang tải…</p>
+          <p class="muted">{{ 'settings.loading' | translate }}</p>
         }
       </section>
     </div>
@@ -141,11 +158,25 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
         margin-top: 12px;
         color: var(--md-text-muted);
       }
+      .lang-row {
+        max-width: 16rem;
+      }
+      .lang-select {
+        width: 100%;
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--md-border-subtle, rgba(255, 255, 255, 0.12));
+        background: var(--md-surface-1, #1a1d24);
+        color: inherit;
+        font: inherit;
+      }
     `,
   ],
 })
 export class SettingsPage implements OnInit {
   private readonly runtimeApi = inject(RuntimeApiService);
+  private readonly translate = inject(TranslateService);
+  readonly locale = inject(LocaleService);
 
   readonly downloadsRoot = signal<string | undefined>(undefined);
   readonly configuredPath = signal<string | null | undefined>(undefined);
@@ -172,7 +203,7 @@ export class SettingsPage implements OnInit {
       this.editPath = d.databaseRootPath ?? '';
       this.loaded.set(true);
     } catch {
-      this.downloadsError.set('Không kết nối được API để đọc đường dẫn lưu.');
+      this.downloadsError.set(this.translate.instant('settings.apiUnreachable'));
       this.loaded.set(true);
     }
   }
@@ -183,10 +214,10 @@ export class SettingsPage implements OnInit {
     try {
       const v = this.editPath.trim();
       await this.runtimeApi.setDownloadsPath(v.length ? v : null);
-      this.saveMessage.set('Đã lưu.');
+      this.saveMessage.set(this.translate.instant('settings.saved'));
       await this.reload();
     } catch (e) {
-      this.saveMessage.set(e instanceof Error ? e.message : 'Lưu thất bại');
+      this.saveMessage.set(e instanceof Error ? e.message : this.translate.instant('common.saveFailed'));
     } finally {
       this.saveBusy.set(false);
     }
@@ -198,10 +229,10 @@ export class SettingsPage implements OnInit {
     try {
       await this.runtimeApi.setDownloadsPath(null);
       this.editPath = '';
-      this.saveMessage.set('Đã xóa ghi đè trong DB.');
+      this.saveMessage.set(this.translate.instant('settings.cleared'));
       await this.reload();
     } catch (e) {
-      this.saveMessage.set(e instanceof Error ? e.message : 'Thao tác thất bại');
+      this.saveMessage.set(e instanceof Error ? e.message : this.translate.instant('common.saveFailed'));
     } finally {
       this.saveBusy.set(false);
     }

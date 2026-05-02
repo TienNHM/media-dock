@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -15,18 +16,26 @@ import { QueueStore } from '../../core/state/queue.store';
 @Component({
   standalone: true,
   selector: 'app-queue-page',
-  imports: [CommonModule, RouterLink, TableModule, ButtonModule, TagModule, TooltipModule],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    RouterLink,
+    TableModule,
+    ButtonModule,
+    TagModule,
+    TooltipModule,
+  ],
   template: `
     <div class="page">
       <div class="page__header">
-        <h1>Queue</h1>
+        <h1>{{ 'queue.title' | translate }}</h1>
         <button
           pButton
           type="button"
           icon="pi pi-refresh"
           class="p-button-outlined"
-          [pTooltip]="'Refresh queue'"
-          [attr.aria-label]="'Refresh queue'"
+          [pTooltip]="'queue.refreshQueue' | translate"
+          [attr.aria-label]="'queue.refreshQueue' | translate"
           (click)="store.refresh()"
         ></button>
       </div>
@@ -39,19 +48,34 @@ import { QueueStore } from '../../core/state/queue.store';
         <ng-template pTemplate="header">
           <tr>
             <th scope="col" class="col-tag">
-              <span class="sr-only">Status</span>
-              <i class="pi pi-flag" aria-hidden="true" pTooltip="Status" tooltipPosition="bottom"></i>
+              <span class="sr-only">{{ 'common.status' | translate }}</span>
+              <i
+                class="pi pi-flag"
+                aria-hidden="true"
+                [pTooltip]="'common.status' | translate"
+                tooltipPosition="bottom"
+              ></i>
             </th>
             <th scope="col" class="col-plat">
-              <span class="sr-only">Platform</span>
-              <i class="pi pi-desktop" aria-hidden="true" pTooltip="Platform" tooltipPosition="bottom"></i>
+              <span class="sr-only">{{ 'common.platform' | translate }}</span>
+              <i
+                class="pi pi-desktop"
+                aria-hidden="true"
+                [pTooltip]="'common.platform' | translate"
+                tooltipPosition="bottom"
+              ></i>
             </th>
-            <th scope="col">URL</th>
-            <th scope="col">Priority</th>
-            <th scope="col">Created</th>
+            <th scope="col">{{ 'common.url' | translate }}</th>
+            <th scope="col">{{ 'common.priority' | translate }}</th>
+            <th scope="col">{{ 'common.created' | translate }}</th>
             <th scope="col" class="col-actions">
-              <span class="sr-only">Actions</span>
-              <i class="pi pi-bolt" aria-hidden="true" pTooltip="Actions" tooltipPosition="bottom"></i>
+              <span class="sr-only">{{ 'common.actions' | translate }}</span>
+              <i
+                class="pi pi-bolt"
+                aria-hidden="true"
+                [pTooltip]="'common.actions' | translate"
+                tooltipPosition="bottom"
+              ></i>
             </th>
           </tr>
         </ng-template>
@@ -72,7 +96,7 @@ import { QueueStore } from '../../core/state/queue.store';
                 [ngClass]="jobPlatformIconClasses(job.sourcePlatform)"
                 [pTooltip]="job.sourcePlatform"
                 tooltipPosition="top"
-                [attr.aria-label]="'Platform: ' + job.sourcePlatform"
+                [attr.aria-label]="'common.platformWith' | translate: { value: job.sourcePlatform }"
               ></i>
             </td>
             <td class="mono url">{{ job.url }}</td>
@@ -84,8 +108,8 @@ import { QueueStore } from '../../core/state/queue.store';
                 [routerLink]="['/jobs', job.id]"
                 icon="pi pi-eye"
                 class="p-button-text p-button-rounded p-button-sm"
-                [pTooltip]="'Open job'"
-                [attr.aria-label]="'Open job details'"
+                [pTooltip]="'queue.openJobDetails' | translate"
+                [attr.aria-label]="'queue.openJobDetails' | translate"
               ></a>
               @if (canCancel(job.status)) {
                 <button
@@ -93,8 +117,8 @@ import { QueueStore } from '../../core/state/queue.store';
                   type="button"
                   icon="pi pi-times"
                   class="p-button-text p-button-rounded p-button-sm p-button-danger"
-                  [pTooltip]="'Cancel job'"
-                  [attr.aria-label]="'Cancel job'"
+                  [pTooltip]="'queue.cancelJob' | translate"
+                  [attr.aria-label]="'queue.cancelJob' | translate"
                   (click)="cancel(job.id)"
                 ></button>
               }
@@ -166,6 +190,7 @@ export class QueuePage implements OnInit {
   readonly store = inject(QueueStore);
   private readonly jobsApi = inject(JobsApiService);
   private readonly realtime = inject(JobsRealtimeService);
+  private readonly translate = inject(TranslateService);
 
   readonly jobStatusPrimeIcon = jobStatusPrimeIcon;
   readonly jobPlatformIconClasses = jobPlatformIconClasses;
@@ -195,7 +220,7 @@ export class QueuePage implements OnInit {
   }
 
   async cancel(id: string): Promise<void> {
-    if (!globalThis.confirm('Cancel this job?')) return;
+    if (!globalThis.confirm(this.translate.instant('queue.cancelConfirm'))) return;
     try {
       await this.jobsApi.cancelJob(id);
       await this.store.refresh();

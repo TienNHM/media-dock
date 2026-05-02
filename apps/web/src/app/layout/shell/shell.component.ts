@@ -2,11 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { interval } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { appVersionLabel } from '../../core/app-version';
+import { LocaleService } from '../../core/services/locale.service';
 import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
 import type { NotificationDto } from '../../core/services/notifications-api.service';
 import { NotificationsApiService } from '../../core/services/notifications-api.service';
@@ -16,6 +18,7 @@ import { NotificationsApiService } from '../../core/services/notifications-api.s
   standalone: true,
   imports: [
     CommonModule,
+    TranslateModule,
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
@@ -32,6 +35,10 @@ export class ShellComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly notificationsApi = inject(NotificationsApiService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
+
+  /** Exposed so the template can depend on {@link LocaleService.lang}; keeps menu labels in sync when language changes. */
+  readonly locale = inject(LocaleService);
 
   readonly paletteOpen = signal(false);
   readonly paletteQuery = signal('');
@@ -41,24 +48,26 @@ export class ShellComponent implements OnInit {
   readonly notifLoading = signal(false);
 
   readonly nav = [
-    { label: 'Dashboard', path: '/dashboard', icon: 'pi-chart-bar' },
-    { label: 'Acquire', path: '/acquire', icon: 'pi-download' },
-    { label: 'Queue', path: '/queue', icon: 'pi-list' },
-    { label: 'History', path: '/history', icon: 'pi-history' },
-    { label: 'Library', path: '/library', icon: 'pi-images' },
-    { label: 'Presets', path: '/presets', icon: 'pi-bookmark' },
-    { label: 'Schedules', path: '/schedules', icon: 'pi-calendar' },
-    { label: 'Cookies', path: '/cookies', icon: 'pi-key' },
-    { label: 'Diagnostics', path: '/diagnostics', icon: 'pi-wrench' },
-    { label: 'Settings', path: '/settings', icon: 'pi-cog' },
+    { labelKey: 'dashboard', path: '/dashboard', icon: 'pi-chart-bar' },
+    { labelKey: 'acquire', path: '/acquire', icon: 'pi-download' },
+    { labelKey: 'queue', path: '/queue', icon: 'pi-list' },
+    { labelKey: 'history', path: '/history', icon: 'pi-history' },
+    { labelKey: 'library', path: '/library', icon: 'pi-images' },
+    { labelKey: 'presets', path: '/presets', icon: 'pi-bookmark' },
+    { labelKey: 'schedules', path: '/schedules', icon: 'pi-calendar' },
+    { labelKey: 'cookies', path: '/cookies', icon: 'pi-key' },
+    { labelKey: 'diagnostics', path: '/diagnostics', icon: 'pi-wrench' },
+    { labelKey: 'settings', path: '/settings', icon: 'pi-cog' },
   ] as const;
 
   readonly filteredNav = computed(() => {
+    this.locale.lang();
     const q = this.paletteQuery().trim().toLowerCase();
     if (!q) return [...this.nav];
-    return this.nav.filter(
-      (n) => n.label.toLowerCase().includes(q) || n.path.replace('/', '').includes(q),
-    );
+    return this.nav.filter((n) => {
+      const label = this.translate.instant(`nav.${n.labelKey}`).toLowerCase();
+      return label.includes(q) || n.path.replace(/^\//u, '').toLowerCase().includes(q);
+    });
   });
 
   async ngOnInit(): Promise<void> {

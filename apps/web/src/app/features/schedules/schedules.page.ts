@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,6 +17,7 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
   imports: [
     CommonModule,
     FormsModule,
+    TranslateModule,
     TableModule,
     ButtonModule,
     DialogModule,
@@ -26,19 +28,21 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
   template: `
     <div class="page">
       <div class="page__header">
-        <h1>Schedules</h1>
+        <h1>{{ 'schedules.title' | translate }}</h1>
         <button
           pButton
           type="button"
           icon="pi pi-plus"
-          label="New schedule"
-          [pTooltip]="'Create schedule'"
+          [label]="'common.newSchedule' | translate"
+          [pTooltip]="'schedules.createTooltip' | translate"
           (click)="openCreate()"
         ></button>
       </div>
       <p class="muted">
-        Cron (standard 5 fields, e.g. <span class="mono">0 * * * *</span> hourly). Template JSON example:
-        <span class="mono">{{ templateExample }}</span>
+        {{
+          'schedules.subtitle'
+            | translate: { example: ('schedules.cronExample' | translate), template: templateExample }
+        }}
       </p>
 
       @if (error()) {
@@ -48,13 +52,18 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
       <p-table [value]="schedules()" [tableStyle]="{ 'min-width': '56rem' }">
         <ng-template pTemplate="header">
           <tr>
-            <th>Enabled</th>
-            <th>Cron</th>
-            <th>TZ</th>
-            <th>Next</th>
+            <th>{{ 'common.enabled' | translate }}</th>
+            <th>{{ 'common.cron' | translate }}</th>
+            <th>{{ 'common.tz' | translate }}</th>
+            <th>{{ 'common.next' | translate }}</th>
             <th scope="col" class="col-actions">
-              <span class="sr-only">Actions</span>
-              <i class="pi pi-bolt" aria-hidden="true" pTooltip="Actions" tooltipPosition="bottom"></i>
+              <span class="sr-only">{{ 'common.actions' | translate }}</span>
+              <i
+                class="pi pi-bolt"
+                aria-hidden="true"
+                [pTooltip]="'common.actions' | translate"
+                tooltipPosition="bottom"
+              ></i>
             </th>
           </tr>
         </ng-template>
@@ -70,8 +79,8 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
                 type="button"
                 class="p-button-text p-button-rounded p-button-sm"
                 icon="pi pi-pencil"
-                [pTooltip]="'Edit'"
-                [attr.aria-label]="'Edit schedule'"
+                [pTooltip]="'common.edit' | translate"
+                [attr.aria-label]="'schedules.editSchedule' | translate"
                 (click)="openEdit(s)"
               ></button>
               <button
@@ -79,8 +88,8 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
                 type="button"
                 class="p-button-text p-button-rounded p-button-sm p-button-danger"
                 icon="pi pi-trash"
-                [pTooltip]="'Delete'"
-                [attr.aria-label]="'Delete schedule'"
+                [pTooltip]="'common.delete' | translate"
+                [attr.aria-label]="'schedules.deleteAria' | translate"
                 (click)="remove(s)"
               ></button>
             </td>
@@ -90,20 +99,22 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
     </div>
 
     <p-dialog
-      [header]="editingId() ? 'Edit schedule' : 'New schedule'"
+      [header]="(editingId() ? 'schedules.editSchedule' : 'schedules.newSchedule') | translate"
       [visible]="dialogOpen()"
       (visibleChange)="dialogOpen.set($event)"
       [modal]="true"
       [style]="{ width: 'min(720px, 94vw)' }"
     >
       <div class="form">
-        <label>Cron</label>
+        <label>{{ 'schedules.cron' | translate }}</label>
         <input pInputText [(ngModel)]="formCron" class="w-full mono" placeholder="*/15 * * * *" />
-        <label>Timezone (IANA, e.g. UTC or America/New_York)</label>
+        <label>{{ 'schedules.timezone' | translate }}</label>
         <input pInputText [(ngModel)]="formTz" class="w-full" />
-        <label>Job template JSON</label>
+        <label>{{ 'schedules.jobTemplateJson' | translate }}</label>
         <textarea pTextarea [(ngModel)]="formTemplate" rows="6" class="w-full mono"></textarea>
-        <label class="row-check"><input type="checkbox" [(ngModel)]="formEnabled" /> Enabled</label>
+        <label class="row-check"
+          ><input type="checkbox" [(ngModel)]="formEnabled" /> {{ 'schedules.enabledCheck' | translate }}</label
+        >
       </div>
       <ng-template pTemplate="footer">
         <button
@@ -111,16 +122,16 @@ import { SchedulesApiService } from '../../core/services/schedules-api.service';
           type="button"
           icon="pi pi-times"
           class="p-button-text p-button-rounded"
-          [pTooltip]="'Cancel'"
-          [attr.aria-label]="'Cancel'"
+          [pTooltip]="'common.cancel' | translate"
+          [attr.aria-label]="'common.cancel' | translate"
           (click)="dialogOpen.set(false)"
         ></button>
         <button
           pButton
           type="button"
           icon="pi pi-check"
-          label="Save"
-          [attr.aria-label]="'Save schedule'"
+          [label]="'common.save' | translate"
+          [attr.aria-label]="'schedules.saveSchedule' | translate"
           (click)="save()"
           [disabled]="busy()"
         ></button>
@@ -189,6 +200,7 @@ export class SchedulesPage implements OnInit {
   readonly templateExample = '{"url":"https://…","priority":0,"presetId":null}';
 
   private readonly api = inject(SchedulesApiService);
+  private readonly translate = inject(TranslateService);
 
   readonly schedules = signal<ScheduleDto[]>([]);
   readonly error = signal<string | undefined>(undefined);
@@ -210,7 +222,7 @@ export class SchedulesPage implements OnInit {
     try {
       this.schedules.set(await this.api.list());
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Failed to load schedules');
+      this.error.set(e instanceof Error ? e.message : this.translate.instant('schedules.loadFailed'));
     }
   }
 
@@ -258,7 +270,7 @@ export class SchedulesPage implements OnInit {
           ? JSON.stringify((e as { error?: unknown }).error)
           : e instanceof Error
             ? e.message
-            : 'Save failed';
+            : this.translate.instant('common.saveFailed');
       this.error.set(msg);
     } finally {
       this.busy.set(false);
@@ -266,12 +278,12 @@ export class SchedulesPage implements OnInit {
   }
 
   async remove(s: ScheduleDto): Promise<void> {
-    if (!globalThis.confirm('Delete this schedule?')) return;
+    if (!globalThis.confirm(this.translate.instant('schedules.deleteConfirm'))) return;
     try {
       await this.api.delete(s.id);
       await this.load();
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Delete failed');
+      this.error.set(e instanceof Error ? e.message : this.translate.instant('common.deleteFailed'));
     }
   }
 }

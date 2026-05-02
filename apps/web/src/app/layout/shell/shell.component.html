@@ -1,48 +1,61 @@
-<div class="shell">
+<div class="shell" [attr.data-lang]="locale.lang()">
   <aside class="shell__sidebar">
     <div class="shell__brand">
       <div class="shell__logo">MD</div>
       <div>
         <div class="shell__title">MediaDock</div>
-        <div class="shell__subtitle">Acquisition Platform</div>
+        <div class="shell__subtitle">{{ 'shell.brandSubtitle' | translate }}</div>
       </div>
     </div>
 
-    <nav class="shell__nav">
+    <nav class="shell__nav" role="navigation" [attr.aria-label]="'shell.mainNav' | translate">
       @for (item of nav; track item.path) {
         <a
           class="shell__navItem"
           [routerLink]="item.path"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: item.path === '/dashboard' }"
+          [attr.title]="('nav.hints.' + item.labelKey) | translate"
+          [attr.aria-label]="('nav.screenReader.' + item.labelKey) | translate"
         >
           <i class="pi md-sidebar-ico" [ngClass]="item.icon" aria-hidden="true"></i>
-          {{ item.label }}
+          {{ ('nav.' + item.labelKey) | translate }}
         </a>
       }
     </nav>
 
     <div class="shell__sidebarFooter">
-      <button type="button" class="md-btn md-btn--ghost" (click)="paletteOpen.set(true)">
+      <button
+        type="button"
+        class="md-btn md-btn--ghost"
+        (click)="paletteOpen.set(true)"
+        [attr.title]="'shell.commandPaletteShortcut' | translate"
+        [attr.aria-label]="'shell.commandPalette' | translate"
+      >
         <span class="pi pi-search" aria-hidden="true"></span>
-        Command palette
+        {{ 'shell.commandPalette' | translate }}
       </button>
-      <div class="shell__hint">Ctrl+K</div>
+      <div class="shell__hint" [attr.title]="'shell.commandPaletteShortcut' | translate">Ctrl+K</div>
     </div>
   </aside>
 
   <div class="shell__main">
     <header class="shell__topbar">
-      <div class="shell__topbarTitle">Command center</div>
+      <div class="shell__topbarTitle">{{ 'shell.commandCenter' | translate }}</div>
       <div class="shell__topbarMeta">
-        <button type="button" class="notif-btn" (click)="openNotifPanel()" aria-label="Notifications">
+        <button
+          type="button"
+          class="notif-btn"
+          (click)="openNotifPanel()"
+          [attr.aria-label]="'shell.notifications' | translate"
+        >
           <span class="pi pi-bell" aria-hidden="true"></span>
           @if (notifUnread() > 0) {
             <span class="notif-badge">{{ notifUnread() > 99 ? '99+' : notifUnread() }}</span>
           }
         </button>
         <span class="shell__topbarSep">·</span>
-        SignalR: <span class="mono">{{ realtime.connectionState() }}</span>
+        {{ 'shell.signalR' | translate }}: <span class="mono">{{ realtime.connectionState() }}</span>
       </div>
     </header>
 
@@ -51,7 +64,7 @@
     </main>
 
     <footer class="shell__statusbar">
-      <span>Sidecar: {{ realtime.connectionState() }}</span>
+      <span>{{ 'shell.sidecar' | translate }}: {{ realtime.connectionState() }}</span>
       <span class="shell__spacer"></span>
       <span class="mono">{{ appVersionLabel }}</span>
     </footer>
@@ -59,7 +72,7 @@
 </div>
 
 <p-dialog
-  header="Command palette"
+  [header]="'shell.paletteHeader' | translate"
   [visible]="paletteOpen()"
   (visibleChange)="paletteOpen.set($event)"
   [modal]="true"
@@ -70,17 +83,23 @@
     <input
       pInputText
       type="search"
-      placeholder="Filter pages…"
+      [placeholder]="'shell.paletteFilter' | translate"
       [value]="paletteQuery()"
       (input)="paletteQuery.set($any($event.target).value)"
     />
     <ul class="palette__list">
       @for (item of filteredNav(); track item.path) {
         <li>
-          <button type="button" class="palette__link" (click)="go(item.path)">
+          <button
+            type="button"
+            class="palette__link"
+            (click)="go(item.path)"
+            [attr.title]="('nav.hints.' + item.labelKey) | translate"
+            [attr.aria-label]="('nav.screenReader.' + item.labelKey) | translate"
+          >
             <span class="palette__row">
               <i class="pi palette__ico" [ngClass]="item.icon" aria-hidden="true"></i>
-              {{ item.label }}
+              {{ ('nav.' + item.labelKey) | translate }}
             </span>
             <span class="mono palette__path">{{ item.path }}</span>
           </button>
@@ -91,7 +110,7 @@
 </p-dialog>
 
 <p-dialog
-  header="Notifications"
+  [header]="'shell.notifications' | translate"
   [visible]="notifOpen()"
   (visibleChange)="notifOpen.set($event)"
   [modal]="true"
@@ -104,15 +123,15 @@
         pButton
         type="button"
         class="p-button-text p-button-sm"
-        label="Mark all read"
+        [label]="'shell.markAllRead' | translate"
         (click)="markAllNotifRead()"
         [disabled]="notifLoading()"
       ></button>
     </div>
     @if (notifLoading()) {
-      <p class="muted">Loading…</p>
+      <p class="muted">{{ 'shell.loading' | translate }}</p>
     } @else if (notifItems().length === 0) {
-      <p class="muted">No notifications.</p>
+      <p class="muted">{{ 'shell.noNotifications' | translate }}</p>
     } @else {
       <ul class="notif-list">
         @for (n of notifItems(); track n.id) {
@@ -125,7 +144,7 @@
                 class="notif-open-job md-btn md-btn--ghost"
                 (click)="openJobFromNotif($event, n)"
               >
-                Open job
+                {{ 'shell.openJob' | translate }}
               </button>
             }
             <div class="notif-item__meta mono">

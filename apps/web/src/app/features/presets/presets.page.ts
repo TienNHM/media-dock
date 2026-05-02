@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,21 +14,31 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
 @Component({
   standalone: true,
   selector: 'app-presets-page',
-  imports: [CommonModule, FormsModule, TableModule, ButtonModule, DialogModule, InputTextModule, Textarea, TooltipModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    TranslateModule,
+    TableModule,
+    ButtonModule,
+    DialogModule,
+    InputTextModule,
+    Textarea,
+    TooltipModule,
+  ],
   template: `
     <div class="page">
       <div class="page__header">
-        <h1>Presets</h1>
+        <h1>{{ 'presets.title' | translate }}</h1>
         <button
           pButton
           type="button"
           icon="pi pi-plus"
-          label="New preset"
-          [pTooltip]="'Create preset'"
+          [label]="'common.newPreset' | translate"
+          [pTooltip]="'presets.createTooltip' | translate"
           (click)="openCreate()"
         ></button>
       </div>
-      <p class="muted">JSON spec: format (yt-dlp -f), subs, thumb, optional cookiesPath (absolute file).</p>
+      <p class="muted">{{ 'presets.subtitle' | translate }}</p>
 
       @if (error()) {
         <p class="err">{{ error() }}</p>
@@ -36,19 +47,31 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
       <p-table [value]="presets()" [tableStyle]="{ 'min-width': '48rem' }">
         <ng-template pTemplate="header">
           <tr>
-            <th>Name</th>
-            <th>Default</th>
-            <th>Updated</th>
+            <th>{{ 'common.name' | translate }}</th>
+            <th [pTooltip]="'presets.defaultStarHint' | translate" tooltipPosition="bottom">
+              {{ 'common.default' | translate }}
+            </th>
+            <th>{{ 'common.updated' | translate }}</th>
             <th scope="col" class="col-actions">
-              <span class="sr-only">Actions</span>
-              <i class="pi pi-bolt" aria-hidden="true" pTooltip="Actions" tooltipPosition="bottom"></i>
+              <span class="sr-only">{{ 'common.actions' | translate }}</span>
+              <i
+                class="pi pi-bolt"
+                aria-hidden="true"
+                [pTooltip]="'common.actions' | translate"
+                tooltipPosition="bottom"
+              ></i>
             </th>
           </tr>
         </ng-template>
         <ng-template pTemplate="body" let-p>
           <tr>
             <td>{{ p.name }}</td>
-            <td>{{ p.isDefault ? 'Yes' : '' }}</td>
+            <td>
+              @if (p.isDefault) {
+                <span class="default-flag" aria-hidden="true">★ </span>
+              }
+              {{ p.isDefault ? ('common.yes' | translate) : ('common.no' | translate) }}
+            </td>
             <td class="mono">{{ p.updatedAt | date: 'short' }}</td>
             <td class="actions">
               <button
@@ -56,8 +79,8 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
                 type="button"
                 class="p-button-text p-button-rounded p-button-sm"
                 icon="pi pi-pencil"
-                [pTooltip]="'Edit'"
-                [attr.aria-label]="'Edit preset ' + p.name"
+                [pTooltip]="'common.edit' | translate"
+                [attr.aria-label]="'presets.editAria' | translate: { name: p.name }"
                 (click)="openEdit(p)"
               ></button>
               <button
@@ -65,10 +88,17 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
                 type="button"
                 class="p-button-text p-button-rounded p-button-sm p-button-danger"
                 icon="pi pi-trash"
-                [pTooltip]="'Delete'"
-                [attr.aria-label]="'Delete preset ' + p.name"
+                [pTooltip]="'common.delete' | translate"
+                [attr.aria-label]="'presets.deleteAria' | translate: { name: p.name }"
                 (click)="remove(p)"
               ></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4">
+              <span class="muted emptymessage">{{ 'presets.emptyTable' | translate }}</span>
             </td>
           </tr>
         </ng-template>
@@ -76,20 +106,32 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
     </div>
 
     <p-dialog
-      [header]="editingId() ? 'Edit preset' : 'New preset'"
+      [header]="(editingId() ? 'presets.editPreset' : 'presets.newPreset') | translate"
       [visible]="dialogOpen()"
       (visibleChange)="dialogOpen.set($event)"
       [modal]="true"
       [style]="{ width: 'min(640px, 94vw)' }"
     >
       <div class="form">
-        <label>Name</label>
-        <input pInputText [(ngModel)]="formName" class="w-full" />
-        <label>Description</label>
-        <input pInputText [(ngModel)]="formDescription" class="w-full" />
-        <label>Spec JSON</label>
+        <label>{{ 'common.name' | translate }}</label>
+        <input
+          pInputText
+          [(ngModel)]="formName"
+          class="w-full"
+          [placeholder]="'presets.namePlaceholder' | translate"
+        />
+        <label>{{ 'presets.description' | translate }}</label>
+        <input
+          pInputText
+          [(ngModel)]="formDescription"
+          class="w-full"
+          [placeholder]="'presets.descriptionPlaceholder' | translate"
+        />
+        <label>{{ 'presets.specJson' | translate }}</label>
         <textarea pTextarea [(ngModel)]="formSpec" rows="8" class="w-full mono"></textarea>
-        <label class="row-check"><input type="checkbox" [(ngModel)]="formDefault" /> Default preset</label>
+        <label class="row-check"
+          ><input type="checkbox" [(ngModel)]="formDefault" /> {{ 'presets.defaultPreset' | translate }}</label
+        >
       </div>
       <ng-template pTemplate="footer">
         <button
@@ -97,16 +139,16 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
           type="button"
           icon="pi pi-times"
           class="p-button-text p-button-rounded"
-          [attr.aria-label]="'Cancel'"
-          [pTooltip]="'Cancel'"
+          [attr.aria-label]="'common.cancel' | translate"
+          [pTooltip]="'common.cancel' | translate"
           (click)="dialogOpen.set(false)"
         ></button>
         <button
           pButton
           type="button"
           icon="pi pi-check"
-          label="Save"
-          [attr.aria-label]="'Save preset'"
+          [label]="'common.save' | translate"
+          [attr.aria-label]="'presets.savePreset' | translate"
           (click)="save()"
           [disabled]="busy() || !formName.trim()"
         ></button>
@@ -169,11 +211,19 @@ import { PresetsApiService } from '../../core/services/presets-api.service';
         font-family: ui-monospace, monospace;
         font-size: 0.85rem;
       }
+      .default-flag {
+        opacity: 0.85;
+      }
+      td .emptymessage {
+        padding: 8px 0;
+        display: inline-block;
+      }
     `,
   ],
 })
 export class PresetsPage implements OnInit {
   private readonly api = inject(PresetsApiService);
+  private readonly translate = inject(TranslateService);
 
   readonly presets = signal<PresetDto[]>([]);
   readonly error = signal<string | undefined>(undefined);
@@ -195,7 +245,7 @@ export class PresetsPage implements OnInit {
     try {
       this.presets.set(await this.api.list());
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Failed to load presets');
+      this.error.set(e instanceof Error ? e.message : this.translate.instant('presets.loadFailed'));
     }
   }
 
@@ -238,19 +288,19 @@ export class PresetsPage implements OnInit {
       this.dialogOpen.set(false);
       await this.load();
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Save failed');
+      this.error.set(e instanceof Error ? e.message : this.translate.instant('common.saveFailed'));
     } finally {
       this.busy.set(false);
     }
   }
 
   async remove(p: PresetDto): Promise<void> {
-    if (!globalThis.confirm(`Delete preset "${p.name}"?`)) return;
+    if (!globalThis.confirm(this.translate.instant('presets.deleteConfirm', { name: p.name }))) return;
     try {
       await this.api.delete(p.id);
       await this.load();
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Delete failed');
+      this.error.set(e instanceof Error ? e.message : this.translate.instant('common.deleteFailed'));
     }
   }
 }

@@ -20,6 +20,8 @@
     "@angular/router": "^19.2.0",
     "@microsoft/signalr": "^10.0.0",
     "@ngrx/signals": "^19.2.1",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "@primeng/themes": "^21.0.4",
     "@primeuix/themes": "^2.0.3",
     "@tanstack/angular-query-experimental": "^5.100.8",

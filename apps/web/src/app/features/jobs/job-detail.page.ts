@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -13,15 +14,19 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
 @Component({
   standalone: true,
   selector: 'app-job-detail-page',
-  imports: [CommonModule, RouterLink, ButtonModule, TableModule, TagModule, TooltipModule],
+  imports: [CommonModule, TranslateModule, RouterLink, ButtonModule, TableModule, TagModule, TooltipModule],
   template: `
     <div class="page">
       <div class="page__header">
-        <a routerLink="/queue" class="back" pTooltip="Back to queue" [attr.aria-label]="'Back to queue'"
+        <a
+          routerLink="/queue"
+          class="back"
+          [pTooltip]="'common.backToQueue' | translate"
+          [attr.aria-label]="'common.backToQueue' | translate"
           ><i class="pi pi-arrow-left back__ico" aria-hidden="true"></i
-          ><span class="sr-only">Queue</span></a
+          ><span class="sr-only">{{ 'nav.queue' | translate }}</span></a
         >
-        <h1>Job</h1>
+        <h1>{{ 'jobDetail.title' | translate }}</h1>
       </div>
 
       @if (error()) {
@@ -40,7 +45,15 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
           </div>
           <p class="url mono">{{ j.url }}</p>
           <p class="muted">
-            Platform {{ j.sourcePlatform }} · Priority {{ j.priority }} · Created {{ j.createdAt | date: 'medium' }}
+            {{
+              'jobDetail.platformLine'
+                | translate
+                  : {
+                      platform: j.sourcePlatform,
+                      priority: j.priority,
+                      date: (j.createdAt | date: 'medium'),
+                    }
+            }}
           </p>
           @if (j.lastErrorMessage) {
             <p class="err-msg">{{ j.lastErrorMessage }}</p>
@@ -49,38 +62,47 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
 
         @if (j.progress) {
           <section class="card">
-            <h2>Progress</h2>
+            <h2>{{ 'jobDetail.progress' | translate }}</h2>
             <p>
-              Phase <strong>{{ j.progress.phase }}</strong>
+              {{ 'jobDetail.phase' | translate }} <strong>{{ j.progress.phase }}</strong>
               @if (j.progress.percent != null) {
                 — {{ j.progress.percent | number: '1.0-1' }}%
               }
             </p>
             @if (j.progress.bytesDone != null && j.progress.bytesTotal != null) {
               <p class="mono muted">
-                {{ j.progress.bytesDone | number }} / {{ j.progress.bytesTotal | number }} bytes
+                {{
+                  'jobDetail.progressBytes'
+                    | translate
+                      : {
+                          done: (j.progress.bytesDone | number),
+                          total: (j.progress.bytesTotal | number),
+                        }
+                }}
               </p>
             }
-            <p class="muted small">Updated {{ j.progress.updatedAt | date: 'medium' }}</p>
+            <p class="muted small">
+              {{ 'jobDetail.progressUpdated' | translate: { date: (j.progress.updatedAt | date: 'medium') } }}
+            </p>
           </section>
         }
 
         <section class="card">
-          <h2>Spec (JSON)</h2>
+          <h2>{{ 'jobDetail.specJson' | translate }}</h2>
           <pre class="spec">{{ j.specJson }}</pre>
         </section>
 
         <section class="card">
-          <h2>Artifacts</h2>
+          <h2>{{ 'jobDetail.artifacts' | translate }}</h2>
           @if (j.artifacts.length === 0) {
-            <p class="muted">No artifacts yet.</p>
+            <p class="muted">{{ 'jobDetail.noArtifacts' | translate }}</p>
           } @else {
             <p-table [value]="j.artifacts" [tableStyle]="{ 'min-width': '40rem' }">
               <ng-template pTemplate="header">
                 <tr>
-                  <th>Kind</th>
-                  <th>Path</th>
-                  <th>Size</th>
+                  <th>{{ 'jobDetail.kind' | translate }}</th>
+                  <th>{{ 'jobDetail.path' | translate }}</th>
+                  <th>{{ 'jobDetail.size' | translate }}</th>
                 </tr>
               </ng-template>
               <ng-template pTemplate="body" let-a>
@@ -90,7 +112,7 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
                       class="artifact-kind pi md-job-ico md-job-ico--neutral"
                       [ngClass]="artifactKindIcon(a.kind)"
                       [pTooltip]="a.kind"
-                      [attr.aria-label]="'Kind: ' + a.kind"
+                      [attr.aria-label]="'common.kindWith' | translate: { value: a.kind }"
                     ></i>
                   </td>
                   <td class="mono path">{{ a.path }}</td>
@@ -109,8 +131,8 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
                 type="button"
                 class="p-button-secondary p-button-rounded"
                 icon="pi pi-folder-open"
-                [pTooltip]="'Open folder'"
-                [attr.aria-label]="'Open download folder'"
+                [pTooltip]="'jobDetail.openFolder' | translate"
+                [attr.aria-label]="'jobDetail.openDownloadFolder' | translate"
                 (click)="openDownloadFolder(vid)"
                 [disabled]="busy()"
               ></button>
@@ -119,14 +141,14 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
                 type="button"
                 class="p-button-rounded"
                 icon="pi pi-play"
-                [pTooltip]="'Preview video'"
-                [attr.aria-label]="'Preview video'"
+                [pTooltip]="'jobDetail.previewVideo' | translate"
+                [attr.aria-label]="'jobDetail.previewVideoAria' | translate"
                 (click)="previewVideo(vid)"
                 [disabled]="busy()"
               ></button>
             } @else {
               <p class="muted desktop-hint">
-                Mở thư mục / xem nhanh: dùng bản <strong>desktop</strong> MediaDock. Trên trình duyệt, dùng đường dẫn trong bảng Artifacts.
+                {{ 'jobDetail.desktopHint' | translate }}
               </p>
             }
           </div>
@@ -139,15 +161,15 @@ import { JobsApiService } from '../../core/services/jobs-api.service';
               type="button"
               icon="pi pi-replay"
               class="p-button-success p-button-rounded"
-              [pTooltip]="'Retry — new job from this URL'"
-              [attr.aria-label]="'Retry — new job'"
+              [pTooltip]="'history.retryTooltip' | translate"
+              [attr.aria-label]="'jobDetail.retryNewJob' | translate"
               (click)="retry()"
               [disabled]="busy()"
             ></button>
           </div>
         }
       } @else {
-        <p class="muted">Loading…</p>
+        <p class="muted">{{ 'common.loading' | translate }}</p>
       }
     </div>
   `,
@@ -262,6 +284,7 @@ export class JobDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly jobsApi = inject(JobsApiService);
+  private readonly translate = inject(TranslateService);
   readonly desktop = inject(DesktopBridgeService);
 
   readonly job = signal<JobDetailDto | undefined>(undefined);
@@ -292,7 +315,9 @@ export class JobDetailPage implements OnInit {
     try {
       await this.desktop.showItemInFolder(artifact.path);
     } catch (e) {
-      globalThis.alert(e instanceof Error ? e.message : 'Could not open folder');
+      globalThis.alert(
+        e instanceof Error ? e.message : this.translate.instant('jobDetail.openFolderFailed'),
+      );
     }
   }
 
@@ -300,7 +325,9 @@ export class JobDetailPage implements OnInit {
     try {
       await this.desktop.previewVideo(artifact.path);
     } catch (e) {
-      globalThis.alert(e instanceof Error ? e.message : 'Could not preview video');
+      globalThis.alert(
+        e instanceof Error ? e.message : this.translate.instant('jobDetail.previewVideoFailed'),
+      );
     }
   }
 
@@ -311,7 +338,7 @@ export class JobDetailPage implements OnInit {
   async retry(): Promise<void> {
     const j = this.job();
     if (!j) return;
-    if (!globalThis.confirm('Create a new job from this one?')) return;
+    if (!globalThis.confirm(this.translate.instant('jobDetail.retryConfirm'))) return;
     this.busy.set(true);
     try {
       const r = await this.jobsApi.retryJob(j.id);
@@ -319,7 +346,9 @@ export class JobDetailPage implements OnInit {
       this.job.set(await this.jobsApi.getJob(r.id));
       this.error.set(undefined);
     } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Retry failed');
+      this.error.set(
+        e instanceof Error ? e.message : this.translate.instant('jobDetail.retryFailed'),
+      );
     } finally {
       this.busy.set(false);
     }

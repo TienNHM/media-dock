@@ -3,6 +3,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { startSidecar, stopSidecar, repoRoot } = require('../sidecar/supervisor.cjs');
+const {
+  coerceLang,
+  setApplicationMenuFromLocale,
+} = require('./menu-locale.cjs');
 
 /** @type {import('electron').BrowserWindow | undefined} */
 let mainWindow;
@@ -20,6 +24,39 @@ function assertAbsoluteFilePath(p) {
 ipcMain.handle('mediadock:showItemInFolder', async (_event, fullPath) => {
   const p = assertAbsoluteFilePath(fullPath);
   shell.showItemInFolder(p);
+});
+
+function localePrefsPath() {
+  return path.join(app.getPath('userData'), 'mediadock-locale.json');
+}
+
+function readStoredAppLang() {
+  try {
+    const raw = fs.readFileSync(localePrefsPath(), 'utf8');
+    const j = JSON.parse(raw);
+    return coerceLang(j?.lang);
+  } catch {
+    try {
+      return coerceLang(app.getLocale?.());
+    } catch {
+      return 'en';
+    }
+  }
+}
+
+function writeStoredAppLang(lang) {
+  try {
+    fs.mkdirSync(path.dirname(localePrefsPath()), { recursive: true });
+    fs.writeFileSync(localePrefsPath(), JSON.stringify({ lang: coerceLang(lang) }, null, 0), 'utf8');
+  } catch {
+    /* ignore */
+  }
+}
+
+ipcMain.handle('mediadock:setMenuLocale', (_event, lang) => {
+  const code = coerceLang(lang);
+  writeStoredAppLang(code);
+  setApplicationMenuFromLocale(code);
 });
 
 ipcMain.handle('mediadock:previewVideo', async (_event, fullPath) => {
@@ -82,6 +119,8 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  setApplicationMenuFromLocale(readStoredAppLang());
+
   try {
     await startSidecar();
   } catch (e) {

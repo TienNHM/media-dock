@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../../core/config/api.config';
 import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
@@ -9,16 +10,16 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
 @Component({
   standalone: true,
   selector: 'app-diagnostics-page',
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   template: `
     <div class="page">
-      <h1>Diagnostics</h1>
-      <p class="muted">Health checks, downloads root, last SignalR progress.</p>
+      <h1>{{ 'diagnostics.title' | translate }}</h1>
+      <p class="muted">{{ 'diagnostics.subtitle' | translate }}</p>
 
       <div class="box mono">
         <div class="box-hdr">
           <i class="pi pi-heart box-hdr__ico" aria-hidden="true"></i>
-          <strong>GET /health/ready</strong>
+          <strong>{{ 'diagnostics.healthReady' | translate }}</strong>
         </div>
         <pre>{{ healthBody() }}</pre>
       </div>
@@ -26,7 +27,7 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
       <div class="box mono">
         <div class="box-hdr">
           <i class="pi pi-folder-open box-hdr__ico" aria-hidden="true"></i>
-          <strong>GET /api/runtime/downloads</strong>
+          <strong>{{ 'diagnostics.runtimeDownloads' | translate }}</strong>
         </div>
         <pre>{{ downloadsBody() }}</pre>
       </div>
@@ -34,7 +35,7 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
       <div class="box mono">
         <div class="box-hdr">
           <i class="pi pi-wifi box-hdr__ico" aria-hidden="true"></i>
-          <strong>Last job progress (SignalR)</strong>
+          <strong>{{ 'diagnostics.lastProgress' | translate }}</strong>
         </div>
         <pre>{{ pretty(realtime.lastProgress()) }}</pre>
       </div>
@@ -78,22 +79,26 @@ export class DiagnosticsPage implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly base = inject(API_BASE_URL);
   private readonly runtimeApi = inject(RuntimeApiService);
+  private readonly translate = inject(TranslateService);
 
-  readonly healthBody = signal<string>('…');
-  readonly downloadsBody = signal<string>('…');
+  readonly healthBody = signal<string>('');
+  readonly downloadsBody = signal<string>('');
 
   async ngOnInit(): Promise<void> {
+    const pending = this.translate.instant('common.loading');
+    this.healthBody.set(pending);
+    this.downloadsBody.set(pending);
     try {
       const h = await firstValueFrom(this.http.get<unknown>(`${this.base}/health/ready`));
       this.healthBody.set(JSON.stringify(h, null, 2));
     } catch (e) {
-      this.healthBody.set(e instanceof Error ? e.message : 'request failed');
+      this.healthBody.set(e instanceof Error ? e.message : this.translate.instant('common.requestFailed'));
     }
     try {
       const d = await this.runtimeApi.getDownloadsInfo();
       this.downloadsBody.set(JSON.stringify(d, null, 2));
     } catch (e) {
-      this.downloadsBody.set(e instanceof Error ? e.message : 'request failed');
+      this.downloadsBody.set(e instanceof Error ? e.message : this.translate.instant('common.requestFailed'));
     }
   }
 

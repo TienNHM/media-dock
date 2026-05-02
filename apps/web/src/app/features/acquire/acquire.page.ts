@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
@@ -12,12 +13,12 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
 @Component({
   standalone: true,
   selector: 'app-acquire-page',
-  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule, TooltipModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ButtonModule, InputTextModule, TooltipModule],
   template: `
     <div class="page">
       <div class="page__header">
-        <h1>Acquire</h1>
-        <p class="muted">Một URL hoặc hàng loạt (mỗi dòng một URL). Dùng <strong>Schedules</strong> cho tải định kỳ.</p>
+        <h1>{{ 'acquire.title' | translate }}</h1>
+        <p class="muted">{{ 'acquire.subtitle' | translate }}</p>
       </div>
 
       <div class="modes">
@@ -26,42 +27,42 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
           class="mode"
           [class.mode--on]="mode() === 'single'"
           (click)="mode.set('single')"
-          [pTooltip]="'Một URL'"
-          aria-label="Một URL"
+          [pTooltip]="'acquire.modeSingle' | translate"
+          [attr.aria-label]="'acquire.modeSingle' | translate"
         >
           <i class="pi pi-link mode__ico" aria-hidden="true"></i>
-          Một URL
+          {{ 'acquire.modeSingle' | translate }}
         </button>
         <button
           type="button"
           class="mode"
           [class.mode--on]="mode() === 'batch'"
           (click)="mode.set('batch')"
-          [pTooltip]="'Hàng loạt'"
-          aria-label="Hàng loạt"
+          [pTooltip]="'acquire.modeBatch' | translate"
+          [attr.aria-label]="'acquire.modeBatch' | translate"
         >
           <i class="pi pi-list mode__ico" aria-hidden="true"></i>
-          Hàng loạt
+          {{ 'acquire.modeBatch' | translate }}
         </button>
       </div>
 
       <div class="dest card">
-        <div class="dest__title">Nơi lưu file sau khi tải</div>
+        <div class="dest__title">{{ 'acquire.destTitle' | translate }}</div>
         @if (downloadsError()) {
           <p class="dest__warn">{{ downloadsError() }}</p>
         } @else if (downloadsRoot()) {
           <p class="dest__path mono">{{ downloadsRoot() }}</p>
-          <p class="muted dest__hint">Video lưu thẳng vào thư mục gốc downloads. Đổi thư mục trong Settings.</p>
+          <p class="muted dest__hint">{{ 'acquire.destHint' | translate }}</p>
         } @else {
-          <p class="muted">Đang tải thông tin…</p>
+          <p class="muted">{{ 'acquire.destLoading' | translate }}</p>
         }
       </div>
 
       <div class="row row--wrap">
         <label class="preset-label">
-          Preset
+          {{ 'acquire.preset' | translate }}
           <select [(ngModel)]="presetId" class="preset-select">
-            <option [ngValue]="null">— Default —</option>
+            <option [ngValue]="null">{{ 'acquire.presetDefault' | translate }}</option>
             @for (p of presets(); track p.id) {
               <option [ngValue]="p.id">{{ p.name }}{{ p.isDefault ? ' ★' : '' }}</option>
             }
@@ -73,8 +74,8 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
             pButton
             type="button"
             icon="pi pi-send"
-            label="Enqueue"
-            [pTooltip]="'Đưa job vào hàng chờ'"
+            [label]="'acquire.enqueue' | translate"
+            [pTooltip]="'acquire.enqueueTooltip' | translate"
             (click)="submitSingle()"
             [disabled]="busy() || !url"
           ></button>
@@ -84,15 +85,15 @@ import { RuntimeApiService } from '../../core/services/runtime-api.service';
               [(ngModel)]="batchText"
               class="batch__area"
               rows="8"
-              placeholder="Mỗi dòng một URL&#10;https://…"
+              [placeholder]="'acquire.batchPlaceholder' | translate"
               [disabled]="busy()"
             ></textarea>
             <button
               pButton
               type="button"
               icon="pi pi-list-check"
-              label="Enqueue batch"
-              [pTooltip]="'Đưa nhiều URL vào hàng chờ'"
+              [label]="'acquire.enqueueBatch' | translate"
+              [pTooltip]="'acquire.enqueueBatchTooltip' | translate"
               (click)="submitBatch()"
               [disabled]="busy() || !batchUrls().length"
             ></button>
@@ -222,6 +223,7 @@ export class AcquirePage implements OnInit {
   private readonly jobsApi = inject(JobsApiService);
   private readonly runtimeApi = inject(RuntimeApiService);
   private readonly presetsApi = inject(PresetsApiService);
+  private readonly translate = inject(TranslateService);
 
   readonly mode = signal<'single' | 'batch'>('single');
   url = '';
@@ -245,7 +247,7 @@ export class AcquirePage implements OnInit {
       const d = await this.runtimeApi.getDownloadsInfo();
       this.downloadsRoot.set(d.downloadsRoot);
     } catch {
-      this.downloadsError.set('Không lấy được cấu hình từ API (sidecar có đang chạy?).');
+      this.downloadsError.set(this.translate.instant('acquire.apiUnreachable'));
     }
     try {
       this.presets.set(await this.presetsApi.list());
@@ -256,11 +258,8 @@ export class AcquirePage implements OnInit {
 
   private confirmDest(): boolean {
     const root = this.downloadsRoot();
-    const hint =
-      root ?? '%LocalAppData%\\MediaDock\\downloads (mặc định nếu API không phản hồi)';
-    return globalThis.confirm(
-      `File sẽ lưu trực tiếp vào thư mục:\n\n${hint}\n\n(Tất cả job dùng chung thư mục này.) Tiếp tục?`,
-    );
+    const hint = root ?? this.translate.instant('acquire.confirmDestFallback');
+    return globalThis.confirm(this.translate.instant('acquire.confirmDest', { path: hint }));
   }
 
   async submitSingle(): Promise<void> {
@@ -269,10 +268,10 @@ export class AcquirePage implements OnInit {
     this.message.set(undefined);
     try {
       const r = await this.jobsApi.createJob(this.url.trim(), 0, this.presetId);
-      this.message.set(`Queued job ${r.id}`);
+      this.message.set(this.translate.instant('acquire.queuedOne', { id: r.id }));
       this.url = '';
     } catch (e) {
-      this.message.set(e instanceof Error ? e.message : 'Failed to queue job');
+      this.message.set(e instanceof Error ? e.message : this.translate.instant('acquire.enqueueFailed'));
     } finally {
       this.busy.set(false);
     }
@@ -286,10 +285,14 @@ export class AcquirePage implements OnInit {
     this.message.set(undefined);
     try {
       const r = await this.jobsApi.createBatchJobs(urls, 0, this.presetId);
-      this.message.set(`Queued ${r.ids.length} job(s).\n${r.ids.join('\n')}`);
+      this.message.set(
+        this.translate.instant('acquire.queuedMany', { count: r.ids.length, ids: r.ids.join('\n') }),
+      );
       this.batchText = '';
     } catch (e) {
-      this.message.set(e instanceof Error ? e.message : 'Batch enqueue failed');
+      this.message.set(
+        e instanceof Error ? e.message : this.translate.instant('acquire.batchEnqueueFailed'),
+      );
     } finally {
       this.busy.set(false);
     }
