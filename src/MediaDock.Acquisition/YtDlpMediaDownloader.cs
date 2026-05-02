@@ -8,6 +8,7 @@ namespace MediaDock.Acquisition;
 
 public sealed class YtDlpMediaDownloader(
     YtDlpBinaryResolver resolver,
+    FfmpegBinaryResolver ffmpegResolver,
     IOptions<AcquisitionOptions> options,
     ILogger<YtDlpMediaDownloader> logger) : IMediaDownloader
 {
@@ -29,14 +30,22 @@ public sealed class YtDlpMediaDownloader(
         {
             "-o", Path.Combine(spec.OutputDirectory, "%(title)s.%(ext)s"),
             "--newline",
-            "--no-progress",
-            spec.Url
+            "--no-progress"
         };
         if (!string.IsNullOrEmpty(spec.FormatSelector))
         {
             args.Insert(0, "-f");
             args.Insert(1, spec.FormatSelector);
         }
+
+        var ff = ffmpegResolver.ResolveFullPathForYtDlp();
+        if (ff is not null)
+        {
+            args.Add("--ffmpeg-location");
+            args.Add(ff);
+        }
+
+        args.Add(spec.Url);
 
         if (!string.IsNullOrEmpty(spec.ProxyUrl))
         {

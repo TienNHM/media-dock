@@ -6,6 +6,7 @@ namespace MediaDock.Diagnostics;
 
 public sealed class BinaryHealthCheck(
     YtDlpBinaryResolver resolver,
+    FfmpegBinaryResolver ffmpegResolver,
     IOptions<AcquisitionOptions> options) : IHealthCheck
 {
     public Task<HealthCheckResult> CheckHealthAsync(
@@ -18,6 +19,12 @@ public sealed class BinaryHealthCheck(
             return Task.FromResult(HealthCheckResult.Degraded("yt-dlp missing; stub mode enabled."));
         if (!exists)
             return Task.FromResult(HealthCheckResult.Unhealthy("yt-dlp binary not found."));
-        return Task.FromResult(HealthCheckResult.Healthy($"yt-dlp resolved: {path}"));
+
+        var ff = ffmpegResolver.ResolveFfmpegPath();
+        var ffOk = ffmpegResolver.Exists(ff);
+        if (!ffOk)
+            return Task.FromResult(HealthCheckResult.Degraded($"yt-dlp: {path}; ffmpeg missing (mux/merge may fail)."));
+
+        return Task.FromResult(HealthCheckResult.Healthy($"yt-dlp: {path}; ffmpeg: {ff}"));
     }
 }

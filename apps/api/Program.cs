@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text.Json.Serialization;
 using MediaDock.Acquisition;
 using MediaDock.Api.Endpoints;
 using MediaDock.Api.Hubs;
@@ -63,7 +64,11 @@ builder.Services.AddHealthChecks()
     .AddDbContextCheck<MediaDockDbContext>("database")
     .AddMediaDockBinaryHealthCheck();
 
-builder.Services.AddSignalR();
+builder.Services.ConfigureHttpJsonOptions(o =>
+    o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+builder.Services.AddSignalR().AddJsonProtocol(o =>
+    o.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.AllowAnyHeader()

@@ -28,9 +28,10 @@ obj/
 apps/desktop-shell/out/
 apps/desktop-shell/dist/
 
-# Binaries (fetched in CI)
+# Binaries (fetched in CI / scripts/fetch-binaries.ps1)
 apps/desktop-shell/resources/binaries/**/*
 !apps/desktop-shell/resources/binaries/.gitkeep
+apps/api/Resources/binaries/*.exe
 
 # Secrets
 *.pfx

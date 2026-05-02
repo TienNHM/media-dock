@@ -9,6 +9,7 @@ namespace MediaDock.Acquisition;
 
 public sealed class YtDlpMediaProbe(
     YtDlpBinaryResolver resolver,
+    FfmpegBinaryResolver ffmpegResolver,
     IOptions<AcquisitionOptions> options,
     ILogger<YtDlpMediaProbe> logger) : IMediaProbe
 {
@@ -23,8 +24,18 @@ public sealed class YtDlpMediaProbe(
 
         try
         {
+            var probeArgs = new List<string> { "-J", "--no-download", "--no-warnings" };
+            var ff = ffmpegResolver.ResolveFullPathForYtDlp();
+            if (ff is not null)
+            {
+                probeArgs.Add("--ffmpeg-location");
+                probeArgs.Add(ff);
+            }
+
+            probeArgs.Add(url);
+
             var result = await CliWrap.Cli.Wrap(path!)
-                .WithArguments(["-J", "--no-download", "--no-warnings", url])
+                .WithArguments(probeArgs)
                 .WithValidation(CommandResultValidation.None)
                 .ExecuteBufferedAsync(cancellationToken);
 

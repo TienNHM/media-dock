@@ -16,6 +16,9 @@
     <ProjectReference Include="..\..\src\MediaDock.Notifications\MediaDock.Notifications.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\binaries\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>

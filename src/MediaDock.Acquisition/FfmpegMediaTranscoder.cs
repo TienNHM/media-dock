@@ -1,20 +1,19 @@
 using CliWrap;
 using MediaDock.Application.Ports.Acquisition;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace MediaDock.Acquisition;
 
 public sealed class FfmpegMediaTranscoder(
-    IOptions<AcquisitionOptions> options,
+    FfmpegBinaryResolver ffmpegResolver,
     ILogger<FfmpegMediaTranscoder> logger) : IMediaTranscoder
 {
     public async Task TranscodeAsync(TranscodeSpec spec, CancellationToken cancellationToken = default)
     {
-        var ffmpeg = options.Value.FfmpegPath;
-        if (string.IsNullOrWhiteSpace(ffmpeg) || !File.Exists(ffmpeg))
+        var ffmpeg = ffmpegResolver.ResolveFfmpegPath();
+        if (string.IsNullOrWhiteSpace(ffmpeg) || !ffmpegResolver.Exists(ffmpeg))
         {
-            logger.LogInformation("ffmpeg not configured; skipping transcode for job {JobId}", spec.JobId);
+            logger.LogInformation("ffmpeg not found; skipping transcode for job {JobId}", spec.JobId);
             return;
         }
 

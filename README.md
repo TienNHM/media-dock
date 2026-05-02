@@ -7,6 +7,24 @@ Desktop-first **Media Acquisition Platform** (Electron + Angular + ASP.NET Core 
 - .NET SDK 9+
 - Node.js 20+ / npm 10+
 
+## Real downloads (Windows)
+
+1. Fetch **yt-dlp** and **ffmpeg** into `apps/api/Resources/binaries/` (copied to the API output on build):
+
+   ```powershell
+   npm run fetch:binaries
+   ```
+
+   Or: `powershell -File scripts/fetch-binaries.ps1`. If the pinned ffmpeg URL 404s, install [ffmpeg](https://ffmpeg.org/download.html) yourself and copy `ffmpeg.exe` next to `yt-dlp.exe`, or set `Acquisition:FfmpegPath` in configuration.
+
+2. Restart the API so `Resources/binaries` is copied to `bin/.../Resources/binaries/`.
+
+3. Confirm: `GET http://127.0.0.1:17888/health/binaries` should report **Healthy** (not “stub mode” / missing ffmpeg).
+
+4. Optional: set `Acquisition:UseStubWhenBinaryMissing` to `false` (user secrets or env) so missing binaries fail fast instead of using stubs.
+
+JSON API responses serialize `JobStatus` as strings (`"Queued"`, …) for the Angular UI.
+
 ## Quick start (development)
 
 ### 1) API sidecar
