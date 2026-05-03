@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, shell, nativeTheme } = require('electron');
 const fs = require('node:fs');
+const os = require('node:os');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
 const { startSidecar, stopSidecar } = require('../sidecar/supervisor.cjs');
@@ -58,6 +59,37 @@ ipcMain.handle('mediadock:setMenuLocale', (_event, lang) => {
   const code = coerceLang(lang);
   writeStoredAppLang(code);
   setApplicationMenuFromLocale(code);
+});
+
+function sidecarRuntimeJsonPath() {
+  if (process.platform === 'win32') {
+    const la = process.env.LOCALAPPDATA;
+    if (la) return path.join(la, 'MediaDock', 'sidecar-runtime.json');
+  }
+  if (process.platform === 'darwin') {
+    return path.join(os.homedir(), 'Library', 'Application Support', 'MediaDock', 'sidecar-runtime.json');
+  }
+  const xdg = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
+  return path.join(xdg, 'MediaDock', 'sidecar-runtime.json');
+}
+
+ipcMain.handle('mediadock:sidecarRuntime', () => {
+  try {
+    const fp = sidecarRuntimeJsonPath();
+    const raw = fs.readFileSync(fp, 'utf8');
+    const j = JSON.parse(raw);
+    const port = typeof j.Port === 'number' ? j.Port : typeof j.port === 'number' ? j.port : 17888;
+    const authToken =
+      typeof j.AuthToken === 'string' ? j.AuthToken : typeof j.authToken === 'string' ? j.authToken : '';
+    const apiBaseUrl = `http://127.0.0.1:${port}`;
+    return { port, authToken, apiBaseUrl };
+  } catch {
+    return {
+      port: 17888,
+      authToken: '',
+      apiBaseUrl: 'http://127.0.0.1:17888',
+    };
+  }
 });
 
 ipcMain.handle('mediadock:previewVideo', async (_event, fullPath) => {

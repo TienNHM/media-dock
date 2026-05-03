@@ -1,6 +1,6 @@
 import { APP_INITIALIZER, ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withHashLocation } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
@@ -9,6 +9,8 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { firstValueFrom } from 'rxjs';
 import { syncElectronShellMenu } from '@app/core/electron-shell-menu';
 import { routes } from '@app/app.routes';
+import { hydrateSidecarSessionFromElectron } from '@app/core/config/sidecar-session';
+import { sidecarAuthInterceptor } from '@app/core/http/sidecar-auth.interceptor';
 
 const fileProtocol =
   typeof window !== 'undefined' && window.location.protocol === 'file:';
@@ -34,7 +36,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, ...(fileProtocol ? [withHashLocation()] : [])),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([sidecarAuthInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
@@ -49,6 +51,11 @@ export const appConfig: ApplicationConfig = {
       prefix: './i18n/',
       suffix: '.json',
     }),
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: () => () => hydrateSidecarSessionFromElectron(),
+    },
     {
       provide: APP_INITIALIZER,
       multi: true,

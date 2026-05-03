@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld('mediadock', {
   showItemInFolder: (fullPath) => ipcRenderer.invoke('mediadock:showItemInFolder', fullPath),
   previewVideo: (fullPath) => ipcRenderer.invoke('mediadock:previewVideo', fullPath),
   setMenuLocale: (lang) => ipcRenderer.invoke('mediadock:setMenuLocale', lang),
+  getSidecarRuntime: () => ipcRenderer.invoke('mediadock:sidecarRuntime'),
 });

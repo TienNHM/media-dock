@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
+import { MEDIADOCK_SIDECAR_TOKEN_LS_KEY } from '@app/core/config/api.config';
 import { LocaleService } from '@app/core/services/locale.service';
 import { RuntimeApiService } from '@app/core/services/runtime-api.service';
 
@@ -16,6 +17,43 @@ import { RuntimeApiService } from '@app/core/services/runtime-api.service';
     <div class="page">
       <h1>{{ 'settings.title' | translate }}</h1>
       <p class="muted">{{ 'settings.subtitle' | translate }}</p>
+
+      <section class="block">
+        <h2>{{ 'settings.sidecarSection' | translate }}</h2>
+        <p class="hint">{{ 'settings.sidecarHint' | translate }}</p>
+        <div class="form sidecar-token-form">
+          <label class="lbl">{{ 'settings.sidecarLabel' | translate }}</label>
+          <input
+            pInputText
+            type="password"
+            class="inp"
+            [placeholder]="'settings.sidecarPlaceholder' | translate"
+            [(ngModel)]="editSidecarToken"
+            autocomplete="new-password"
+            spellcheck="false"
+          />
+          <div class="btns">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-save"
+              [label]="'settings.sidecarSave' | translate"
+              (click)="saveSidecarBrowserToken()"
+            ></button>
+            <button
+              pButton
+              type="button"
+              class="p-button-secondary"
+              icon="pi pi-times"
+              [label]="'settings.sidecarClear' | translate"
+              (click)="clearSidecarBrowserToken()"
+            ></button>
+          </div>
+          @if (sidecarTokenMsg()) {
+            <p class="msg">{{ sidecarTokenMsg() }}</p>
+          }
+        </div>
+      </section>
 
       <section class="block">
         <h2>{{ 'settings.language' | translate }}</h2>
@@ -170,6 +208,9 @@ import { RuntimeApiService } from '@app/core/services/runtime-api.service';
         color: inherit;
         font: inherit;
       }
+      .sidecar-token-form {
+        margin-top: 12px;
+      }
     `,
   ],
 })
@@ -186,11 +227,48 @@ export class SettingsPage implements OnInit {
   readonly loaded = signal(false);
   readonly saveBusy = signal(false);
   readonly saveMessage = signal<string | undefined>(undefined);
+  readonly sidecarTokenMsg = signal<string | undefined>(undefined);
 
   editPath = '';
+  editSidecarToken = '';
 
   async ngOnInit(): Promise<void> {
+    try {
+      this.editSidecarToken = localStorage.getItem(MEDIADOCK_SIDECAR_TOKEN_LS_KEY) ?? '';
+    } catch {
+      this.editSidecarToken = '';
+    }
     await this.reload();
+  }
+
+  saveSidecarBrowserToken(): void {
+    this.sidecarTokenMsg.set(undefined);
+    try {
+      const t = this.editSidecarToken.trim();
+      if (t.length === 0) {
+        localStorage.removeItem(MEDIADOCK_SIDECAR_TOKEN_LS_KEY);
+      } else {
+        localStorage.setItem(MEDIADOCK_SIDECAR_TOKEN_LS_KEY, t);
+      }
+      this.sidecarTokenMsg.set(this.translate.instant('settings.sidecarSaved'));
+    } catch (e) {
+      this.sidecarTokenMsg.set(
+        e instanceof Error ? e.message : this.translate.instant('settings.sidecarSaveFailed'),
+      );
+    }
+  }
+
+  clearSidecarBrowserToken(): void {
+    this.sidecarTokenMsg.set(undefined);
+    try {
+      localStorage.removeItem(MEDIADOCK_SIDECAR_TOKEN_LS_KEY);
+      this.editSidecarToken = '';
+      this.sidecarTokenMsg.set(this.translate.instant('settings.sidecarCleared'));
+    } catch (e) {
+      this.sidecarTokenMsg.set(
+        e instanceof Error ? e.message : this.translate.instant('settings.sidecarSaveFailed'),
+      );
+    }
   }
 
   private async reload(): Promise<void> {

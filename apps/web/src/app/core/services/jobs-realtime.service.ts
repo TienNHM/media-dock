@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { API_BASE_URL } from '@app/core/config/api.config';
+import { API_BASE_URL, getSidecarAuthToken } from '@app/core/config/api.config';
 
 export interface JobProgressDto {
   jobId: string;
@@ -23,8 +23,12 @@ export class JobsRealtimeService {
     if (this.hub) return;
 
     this.connectionState.set('connecting');
+    const token = getSidecarAuthToken();
     this.hub = new HubConnectionBuilder()
-      .withUrl(`${this.base}/hubs/jobs`, { withCredentials: false })
+      .withUrl(`${this.base}/hubs/jobs`, {
+        withCredentials: false,
+        ...(token ? { headers: { 'X-MediaDock-Token': token } } : {}),
+      })
       .configureLogging(LogLevel.Warning)
       .withAutomaticReconnect()
       .build();
