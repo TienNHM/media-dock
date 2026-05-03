@@ -1,16 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <RootNamespace>MediaDock.Infrastructure</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaDock.Acquisition\MediaDock.Acquisition.csproj" />
     <ProjectReference Include="..\MediaDock.Application\MediaDock.Application.csproj" />
     <ProjectReference Include="..\MediaDock.Domain\MediaDock.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CliWrap" />
     <PackageReference Include="Cronos" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
@@ -21,6 +18,7 @@
     </PackageReference>
     <PackageReference Include="EFCore.NamingConventions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>

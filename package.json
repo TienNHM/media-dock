@@ -2,20 +2,14 @@
   "name": "media-dock",
   "private": true,
   "packageManager": "npm@10.9.2",
-  "workspaces": [
-    "apps/web",
-    "apps/desktop-shell",
-    "packages/*"
-  ],
+  "workspaces": ["apps/web", "apps/desktop-shell"],
   "scripts": {
-    "fetch:binaries": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/fetch-binaries.ps1",
-    "web:dev": "npm --workspace web run start",
-    "web:build": "npm --workspace web run build",
-    "desktop:dev": "npm --workspace @mediadock/desktop-shell run dev",
-    "desktop:build": "npm --workspace @mediadock/desktop-shell run build",
-    "desktop:bundle": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop.ps1 -SkipElectron",
-    "release:desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop.ps1",
-    "release:desktop:no-binaries": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop.ps1 -SkipBinariesFetch",
-    "release:desktop:matrix": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop-matrix.ps1"
+    "download:native-binaries": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/fetch-binaries.ps1",
+    "dev:spa": "npm run start -w apps/web",
+    "dev:electron": "npm run dev -w apps/desktop-shell",
+    "build:spa-desktop": "npm run build -w apps/web",
+    "build:spa-hosted": "npm run build:hosted -w apps/web",
+    "package:desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop.ps1",
+    "package:desktop:multi-runtime": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release-desktop-matrix.ps1"
   }
 }

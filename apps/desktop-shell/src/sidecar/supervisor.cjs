@@ -70,7 +70,7 @@ async function startSidecar() {
   const liveUrl = `${listenUrl}/health/live`;
 
   const published = publishedApiExe();
-  const apiProject = path.join(monorepoRoot(), 'apps', 'api', 'MediaDock.Api.csproj');
+  const apiProject = path.join(monorepoRoot(), 'src', 'MediaDock.Api', 'MediaDock.Api.csproj');
 
   const canDevRun = fs.existsSync(apiProject);
 

@@ -5,8 +5,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-import { LocaleService } from '../../core/services/locale.service';
-import { RuntimeApiService } from '../../core/services/runtime-api.service';
+import { LocaleService } from '@app/core/services/locale.service';
+import { RuntimeApiService } from '@app/core/services/runtime-api.service';
 
 @Component({
   standalone: true,

@@ -34,7 +34,7 @@ apps/desktop-shell/release-*/
 # Binaries (fetched in CI / scripts/fetch-binaries.ps1)
 apps/desktop-shell/resources/binaries/**/*
 !apps/desktop-shell/resources/binaries/.gitkeep
-apps/api/Resources/binaries/*.exe
+src/MediaDock.Api/Resources/binaries/*.exe
 
 # Secrets
 *.pfx

@@ -5,9 +5,9 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { jobPlatformIconClasses, jobStatusDisplayClasses } from '../../core/ui/job-visuals';
-import { JobsApiService } from '../../core/services/jobs-api.service';
-import type { JobStatus, JobSummaryDto } from '../../core/models/job.models';
+import { jobPlatformIconClasses, jobStatusDisplayClasses } from '@app/core/ui/job-visuals';
+import { JobsApiService } from '@app/core/services/jobs-api.service';
+import type { JobStatus, JobSummaryDto } from '@app/core/models/job.models';
 
 @Component({
   standalone: true,

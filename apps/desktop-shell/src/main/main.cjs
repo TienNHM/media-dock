@@ -105,7 +105,7 @@ function createWindow() {
   if (isDev) {
     mainWindow.loadURL(devUrl).catch(() => {
       // If the Angular dev server isn't up yet, still open the window; user can refresh.
-      void mainWindow?.loadURL('data:text/html,<meta charset=utf-8><p>Start the web app: <code>npm run web:dev</code></p>');
+      void mainWindow?.loadURL('data:text/html,<meta charset=utf-8><p>Start the web app: <code>npm run dev:spa</code></p>');
     });
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {

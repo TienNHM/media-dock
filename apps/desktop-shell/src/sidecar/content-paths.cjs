@@ -11,7 +11,7 @@ function electronApp() {
   }
 }
 
-/** Monorepo root (contains apps/api, apps/web). */
+/** Monorepo root (contains src/MediaDock.Api, apps/web). */
 function monorepoRoot() {
   return path.resolve(__dirname, '../../../../');
 }

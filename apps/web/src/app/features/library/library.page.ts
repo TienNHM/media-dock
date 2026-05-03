@@ -5,10 +5,10 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import type { LibraryItemDto } from '../../core/models/job.models';
-import { jobPlatformIconClasses } from '../../core/ui/job-visuals';
-import { DesktopBridgeService } from '../../core/services/desktop-bridge.service';
-import { LibraryApiService } from '../../core/services/library-api.service';
+import type { LibraryItemDto } from '@app/core/models/job.models';
+import { jobPlatformIconClasses } from '@app/core/ui/job-visuals';
+import { DesktopBridgeService } from '@app/core/services/desktop-bridge.service';
+import { LibraryApiService } from '@app/core/services/library-api.service';
 
 @Component({
   standalone: true,

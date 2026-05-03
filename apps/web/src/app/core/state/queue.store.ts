@@ -1,7 +1,7 @@
 import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
 import { inject } from '@angular/core';
-import type { JobSummaryDto } from '../models/job.models';
-import { JobsApiService } from '../services/jobs-api.service';
+import type { JobSummaryDto } from '@app/core/models/job.models';
+import { JobsApiService } from '@app/core/services/jobs-api.service';
 
 interface QueueState {
   jobs: JobSummaryDto[];

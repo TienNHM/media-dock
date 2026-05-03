@@ -59,7 +59,24 @@
             "scripts": []
           },
           "configurations": {
-            "production": {
+            "desktop": {
+              "baseHref": "./",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "hosted": {
+              "baseHref": "/",
               "budgets": [
                 {
                   "type": "initial",
@@ -80,13 +97,13 @@
               "sourceMap": true
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": "desktop"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "web:build:production"
+              "buildTarget": "web:build:hosted"
             },
             "development": {
               "buildTarget": "web:build:development"

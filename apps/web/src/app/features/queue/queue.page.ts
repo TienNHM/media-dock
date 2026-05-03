@@ -8,10 +8,10 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import { JobsApiService } from '../../core/services/jobs-api.service';
-import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
-import { jobPlatformIconClasses, jobStatusPrimeIcon } from '../../core/ui/job-visuals';
-import { QueueStore } from '../../core/state/queue.store';
+import { JobsApiService } from '@app/core/services/jobs-api.service';
+import { JobsRealtimeService } from '@app/core/services/jobs-realtime.service';
+import { jobPlatformIconClasses, jobStatusPrimeIcon } from '@app/core/ui/job-visuals';
+import { QueueStore } from '@app/core/state/queue.store';
 
 @Component({
   standalone: true,

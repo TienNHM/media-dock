@@ -6,8 +6,8 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import type { CookieProfileDto } from '../../core/models/job.models';
-import { CookiesApiService } from '../../core/services/cookies-api.service';
+import type { CookieProfileDto } from '@app/core/models/job.models';
+import { CookiesApiService } from '@app/core/services/cookies-api.service';
 
 @Component({
   standalone: true,

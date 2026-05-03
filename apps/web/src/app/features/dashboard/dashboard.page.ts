@@ -4,8 +4,8 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { debounceTime } from 'rxjs';
 import { CardModule } from 'primeng/card';
-import { JobsApiService } from '../../core/services/jobs-api.service';
-import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
+import { JobsApiService } from '@app/core/services/jobs-api.service';
+import { JobsRealtimeService } from '@app/core/services/jobs-realtime.service';
 
 @Component({
   standalone: true,

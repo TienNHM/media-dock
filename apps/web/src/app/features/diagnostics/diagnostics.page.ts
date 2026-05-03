@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { API_BASE_URL } from '../../core/config/api.config';
-import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
-import { RuntimeApiService } from '../../core/services/runtime-api.service';
+import { API_BASE_URL } from '@app/core/config/api.config';
+import { JobsRealtimeService } from '@app/core/services/jobs-realtime.service';
+import { RuntimeApiService } from '@app/core/services/runtime-api.service';
 
 @Component({
   standalone: true,

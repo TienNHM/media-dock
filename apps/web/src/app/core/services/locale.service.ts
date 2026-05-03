@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
-import { syncElectronShellMenu } from '../electron-shell-menu';
+import { syncElectronShellMenu } from '@app/core/electron-shell-menu';
 
 export type AppLang = 'en' | 'vi';
 

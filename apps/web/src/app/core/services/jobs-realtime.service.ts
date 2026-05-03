@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
-import { API_BASE_URL } from '../config/api.config';
+import { API_BASE_URL } from '@app/core/config/api.config';
 
 export interface JobProgressDto {
   jobId: string;

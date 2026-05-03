@@ -1,0 +1,9 @@
+<Project>
+  <!-- Shared defaults for all C# projects under src/ (API, Worker, libraries, tests). -->
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>

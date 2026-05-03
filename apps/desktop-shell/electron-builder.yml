@@ -21,7 +21,7 @@ extraResources:
     to: mediadock/api
 
 win:
-  # MSI (WiX) needs a real .ico; use build/icon.ico (copy from web favicon in repo or after web:build).
+  # MSI (WiX) needs a real .ico; use build/icon.ico (copy from web favicon in repo or after npm run build:spa-desktop).
   icon: build/icon.ico
   # Unsigned artifacts: avoids winCodeSign cache extract (symlinks) failing without Developer Mode/admin.
   signAndEditExecutable: false

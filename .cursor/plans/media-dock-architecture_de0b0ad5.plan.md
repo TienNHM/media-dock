@@ -106,7 +106,7 @@ media-dock/
 │   │   ├── electron-builder.yml
 │   │   └── package.json
 │   │
-│   ├── web/                              # Angular 19+ standalone app
+│   └── web/                              # Angular 19+ standalone app
 │   │   ├── src/app/
 │   │   │   ├── core/                     # auth, http, signalr, error, theme, telemetry
 │   │   │   ├── shared/                   # ui primitives wrapping PrimeNG, pipes, dirs
@@ -124,15 +124,6 @@ media-dock/
 │   │   │   │   └── settings/
 │   │   │   └── app.routes.ts
 │   │   └── project.json
-│   │
-│   ├── api/                              # MediaDock.Api (ASP.NET Core host)
-│   │   ├── Endpoints/                    # Minimal API endpoint groups
-│   │   ├── Hubs/                         # SignalR hubs
-│   │   ├── Auth/                         # local-token + future OIDC
-│   │   └── Program.cs
-│   │
-│   └── worker/                           # MediaDock.Worker (separate host for SaaS)
-│       └── Program.cs                    # composes Worker module only
 │
 ├── packages/
 │   ├── contracts/                        # Source-of-truth DTOs
@@ -143,7 +134,9 @@ media-dock/
 │   ├── icons/                            # custom SVG sprite + Lucide subset
 │   └── eslint-config/                    # shared lint configs
 │
-├── src/                                  # .NET solution (modular monolith)
+├── src/                                  # All .NET: hosts + libraries + tests (repo root)
+│   ├── MediaDock.Api/                    # ASP.NET Core host (Endpoints, Hubs, Program.cs)
+│   ├── MediaDock.Worker/                 # optional standalone worker host
 │   ├── MediaDock.Domain/                 # entities, value objects, domain events, no deps
 │   ├── MediaDock.Application/            # use cases (MediatR), validators, ports
 │   ├── MediaDock.Infrastructure/         # EF Core, FS, crypto, OS integration
@@ -154,11 +147,8 @@ media-dock/
 │   ├── MediaDock.Plugins.Abstractions/   # extension API surface (Phase 3)
 │   └── MediaDock.Tests/
 │
-├── infrastructure/
-│   ├── installers/                       # NSIS, DMG, AppImage assets, code-signing scripts
-│   ├── ci/                               # GitHub Actions workflows
-│   ├── packaging/                        # binary fetch + checksum scripts (yt-dlp, ffmpeg)
-│   └── telemetry/                        # OTel collector config (Phase 3)
+├── .github/
+│   └── workflows/                        # e.g. build.yml (dotnet + web)
 │
 ├── scripts/
 │   ├── dev.ps1 / dev.sh                  # one-shot dev orchestrator
@@ -180,10 +170,11 @@ media-dock/
 ```
 
 Why this structure:
-- `apps/` vs `src/` split keeps the **.NET solution self-contained** so JetBrains Rider/VS work natively.
+- `apps/` = **only** web + desktop-shell; **all C#** lives under **`src/`** at repo root (no `dotnet/` wrapper).
+- `apps/web/src` vs root `src/` = Angular vs backend; name differs by path depth.
 - `packages/contracts` is the **single contract boundary** — DTOs are written in C#, OpenAPI emitted, TS client generated. Drift is impossible.
 - `packages/ui-kit` ensures **PrimeNG is wrapped, never used raw** in features — protects against future library swaps.
-- `apps/worker` is a stub today but proves the worker module composes alone; Day-1 SaaS readiness.
+- `src/MediaDock.Worker` is a stub today but proves the worker module composes alone; Day-1 SaaS readiness.
 
 ---
 
@@ -455,7 +446,7 @@ The rest of the system depends only on these three interfaces. Swapping a binary
 
 ### 6.7 Binary lifecycle
 
-- Pinned versions checked into `infrastructure/packaging/binaries.json` (URL + SHA-256 + version).
+- Pinned versions: `scripts/packaging/binaries.manifest.json` (URL + SHA-256 + version; wire into fetch script / CI as needed).
 - Fetched in CI, packaged into installer, **not** committed.
 - In-app updater fetches yt-dlp updates from a controlled mirror; `ffmpeg` updates require a full app update (rare).
 
@@ -659,7 +650,7 @@ Out of scope: schedules, browser cookies import, presets editor, library page, L
 2. **TenantId** added to every aggregate via an EF Core interceptor; query filters auto-applied.
 3. **Queue adapter** swapped from in-proc Channels to a `RedisDownloadQueue` implementing `IDownloadQueue`.
 4. **Storage adapter** swapped from `LocalArtifactSink` to `S3ArtifactSink`.
-5. **Worker host** (`apps/worker`) deployed independently; API host scales horizontally behind a load balancer.
+5. **Worker host** (`src/MediaDock.Worker`) deployed independently; API host scales horizontally behind a load balancer.
 6. **Desktop app** keeps working — points to either `127.0.0.1` (local) or `https://api.mediadock.app` (cloud) based on a profile selector.
 
 No domain code, no use cases, no UI features change. That's the test of this architecture.

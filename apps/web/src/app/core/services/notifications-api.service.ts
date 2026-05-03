@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { API_BASE_URL } from '../config/api.config';
+import { API_BASE_URL } from '@app/core/config/api.config';
 
 export interface NotificationDto {
   id: string;

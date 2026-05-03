@@ -8,8 +8,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { Textarea } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
-import type { ScheduleDto } from '../../core/models/job.models';
-import { SchedulesApiService } from '../../core/services/schedules-api.service';
+import type { ScheduleDto } from '@app/core/models/job.models';
+import { SchedulesApiService } from '@app/core/services/schedules-api.service';
 
 @Component({
   standalone: true,

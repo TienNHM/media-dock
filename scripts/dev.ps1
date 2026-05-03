@@ -13,7 +13,7 @@ if ($Target -eq "api" -or $Target -eq "all") {
   Start-Process pwsh -ArgumentList @(
     "-NoExit",
     "-Command",
-    "Set-Location `"$(Get-Location)`"; dotnet run --project apps/api/MediaDock.Api.csproj"
+    "Set-Location `"$(Get-Location)`"; dotnet run --project src/MediaDock.Api/MediaDock.Api.csproj"
   ) | Out-Null
 }
 
@@ -22,7 +22,7 @@ if ($Target -eq "web" -or $Target -eq "all") {
   Start-Process pwsh -ArgumentList @(
     "-NoExit",
     "-Command",
-    "Set-Location `"$(Get-Location)`"; npm run web:dev"
+    "Set-Location `"$(Get-Location)`"; npm run dev:spa"
   ) | Out-Null
 }
 
@@ -31,7 +31,7 @@ if ($Target -eq "desktop" -or $Target -eq "all") {
   Start-Process pwsh -ArgumentList @(
     "-NoExit",
     "-Command",
-    "Set-Location `"$(Get-Location)`"; npm run desktop:dev"
+    "Set-Location `"$(Get-Location)`"; npm run dev:electron"
   ) | Out-Null
 }
 

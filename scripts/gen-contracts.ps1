@@ -1,2 +1,2 @@
 $ErrorActionPreference = "Stop"
-Write-Host "TODO: NSwag OpenAPI -> TypeScript client into packages/contracts/typescript (Phase 2)." -ForegroundColor Yellow
+Write-Host "TODO: NSwag OpenAPI -> TypeScript models (e.g. generated under apps/web/src/app/core/models or a future libs/ package)." -ForegroundColor Yellow

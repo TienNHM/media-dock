@@ -1,4 +1,4 @@
-import type { JobStatus } from '../models/job.models';
+import type { JobStatus } from '@app/core/models/job.models';
 
 type JobIconTone = 'success' | 'danger' | 'warn' | 'info' | 'muted' | 'neutral';
 

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { API_BASE_URL } from '../config/api.config';
-import type { PresetDto } from '../models/job.models';
+import { API_BASE_URL } from '@app/core/config/api.config';
+import type { PresetDto } from '@app/core/models/job.models';
 
 @Injectable({ providedIn: 'root' })
 export class PresetsApiService {

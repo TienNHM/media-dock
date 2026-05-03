@@ -8,8 +8,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { Textarea } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
-import type { PresetDto } from '../../core/models/job.models';
-import { PresetsApiService } from '../../core/services/presets-api.service';
+import type { PresetDto } from '@app/core/models/job.models';
+import { PresetsApiService } from '@app/core/services/presets-api.service';
 
 @Component({
   standalone: true,

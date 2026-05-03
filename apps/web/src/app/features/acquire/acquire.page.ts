@@ -5,10 +5,10 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-import type { PresetDto } from '../../core/models/job.models';
-import { JobsApiService } from '../../core/services/jobs-api.service';
-import { PresetsApiService } from '../../core/services/presets-api.service';
-import { RuntimeApiService } from '../../core/services/runtime-api.service';
+import type { PresetDto } from '@app/core/models/job.models';
+import { JobsApiService } from '@app/core/services/jobs-api.service';
+import { PresetsApiService } from '@app/core/services/presets-api.service';
+import { RuntimeApiService } from '@app/core/services/runtime-api.service';
 
 @Component({
   standalone: true,

@@ -1,0 +1,38 @@
+{
+  "name": "MediaDock",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:9.0-bookworm",
+
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20",
+      "nodeGypDependencies": true,
+      "pnpmVersion": "none"
+    }
+  },
+
+  "forwardPorts": [17888, 4200],
+  "portsAttributes": {
+    "17888": {
+      "label": "MediaDock API",
+      "onAutoForward": "notify"
+    },
+    "4200": {
+      "label": "Angular (ng serve)",
+      "onAutoForward": "notify"
+    }
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-dotnettools.csharp", "Angular.ng-template"]
+    }
+  },
+
+  "remoteEnv": {
+    "DOTNET_NOLOGO": "1",
+    "DOTNET_CLI_TELEMETRY_OPTOUT": "1"
+  }
+
+}

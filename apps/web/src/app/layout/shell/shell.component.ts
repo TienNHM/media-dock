@@ -7,11 +7,11 @@ import { interval } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { appVersionLabel } from '../../core/app-version';
-import { LocaleService } from '../../core/services/locale.service';
-import { JobsRealtimeService } from '../../core/services/jobs-realtime.service';
-import type { NotificationDto } from '../../core/services/notifications-api.service';
-import { NotificationsApiService } from '../../core/services/notifications-api.service';
+import { appVersionLabel } from '@app/core/app-version';
+import { LocaleService } from '@app/core/services/locale.service';
+import { JobsRealtimeService } from '@app/core/services/jobs-realtime.service';
+import type { NotificationDto } from '@app/core/services/notifications-api.service';
+import { NotificationsApiService } from '@app/core/services/notifications-api.service';
 
 @Component({
   selector: 'app-shell',

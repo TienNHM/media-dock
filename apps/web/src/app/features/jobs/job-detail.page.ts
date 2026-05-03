@@ -6,10 +6,10 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
-import type { JobArtifactDto, JobDetailDto, JobStatus } from '../../core/models/job.models';
-import { artifactKindIcon, jobStatusPrimeIcon } from '../../core/ui/job-visuals';
-import { DesktopBridgeService } from '../../core/services/desktop-bridge.service';
-import { JobsApiService } from '../../core/services/jobs-api.service';
+import type { JobArtifactDto, JobDetailDto, JobStatus } from '@app/core/models/job.models';
+import { artifactKindIcon, jobStatusPrimeIcon } from '@app/core/ui/job-visuals';
+import { DesktopBridgeService } from '@app/core/services/desktop-bridge.service';
+import { JobsApiService } from '@app/core/services/jobs-api.service';
 
 @Component({
   standalone: true,
