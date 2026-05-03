@@ -179,9 +179,9 @@ if (-not $SkipElectron) {
     Write-Host '[4/4] electron-builder' -ForegroundColor Yellow
     $ridKey = ([string]$Runtime).ToLower()
 
-    # Always build into a fresh temp folder. Reusing workspace release-*/win-unpacked often locks app.asar
+    # Build into a fresh subfolder under the repo (not %TEMP%). Reusing workspace release-*/win-unpacked often locks app.asar
     # (MediaDock running, Defender, Cursor indexing). Promote results into release-<rid> only after succeed.
-    $stagingRoot = Join-Path ([System.IO.Path]::GetTempPath()) 'media-dock-electron'
+    $stagingRoot = Join-Path $desktop '.electron-builder-staging'
     New-Item -ItemType Directory -Force $stagingRoot | Out-Null
     $stagingOut = Join-Path $stagingRoot ("$electronOutSlug-" + [guid]::NewGuid().ToString('N'))
 
@@ -225,7 +225,7 @@ if (-not $SkipElectron) {
             throw "Runtime không được hỗ trợ cho electron-builder: $Runtime - dạng ví dụ: win-x64, win-arm64, linux-x64, osx-arm64."
         }
 
-        Write-Host "     Electron staging (temp): $stagingOut" -ForegroundColor DarkGray
+        Write-Host "     Electron staging (repo): $stagingOut" -ForegroundColor DarkGray
         & npx --yes @ebArgs
 
         if ($LASTEXITCODE -ne 0) {
@@ -243,7 +243,7 @@ if (-not $SkipElectron) {
         if ($LASTEXITCODE -ge 8) {
             throw @"
 promote robocopy failed ($LASTEXITCODE). Old release folder locked?
-Installers remain at temp (copy manually):
+Installers remain in staging (copy manually):
   $stagingOut
 Delete apps/desktop-shell/release-$electronOutSlug and retry after closing Explorer/MediaDock.
 "@

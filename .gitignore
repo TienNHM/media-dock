@@ -28,6 +28,7 @@ obj/
 apps/desktop-shell/out/
 apps/desktop-shell/dist/
 apps/desktop-shell/bundle-dist/
+apps/desktop-shell/.electron-builder-staging/
 apps/desktop-shell/release-out/
 apps/desktop-shell/release-*/
 
